@@ -57,6 +57,15 @@ div.quarto-title-meta{
 #   class.output = "numberLines"  # add line numbers to code output
 # )
 
+# Keyboard Shortcut
+# Alt + (-)           Inserts the assignment operator with spaces surrounding it.
+# Ctrl + Shift + M    Inserts the magrittr/pipe operator (%>%) with spaces surrounding it.
+# Ctrl + Shift + R    Creates a foldable comment section in your code. These are used for code externalization with knitr:read_chunk() function. Learn more.
+# Alt + L             Collapse active section.
+# Alt + O             Collapse all sections.
+# Alt + Shift + L     Open active section.
+# Alt + Shift + O     Open all sections
+
 library(tidyverse)  # Load core packages: 
                     # ggplot2,   for data visualization.
                     # dplyr,     for data manipulation.
@@ -98,7 +107,7 @@ setwd("C:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Code")
 
 
 ### Data Cleaning
-```{r Step_1.Data_Cleaning, include=FALSE}
+```{r Step_1.Data_Cleaning}
 # Load txt files
 offline_data_txt <- readLines("offline.final.trace.txt")
 online_data_txt  <- readLines("online.final.trace.txt")
@@ -153,13 +162,13 @@ summary(sapply(IPS_offline_Data[,c("scanedMAC", "frequency", "MAC", "mode")], as
 summary(sapply(IPS_online_Data[,c("scanedMAC", "frequency", "MAC", "mode")], as.factor))
 
 #Since the scan device and the elevation (posZ) are constant, they can be dropped
-length(unique(IPS_offline_Data$scanedMAC))  #Output: 1
-length(unique(IPS_offline_Data$posZ))       #Output: 1
+# length(unique(IPS_offline_Data$scanedMAC))  #Output: 1
+# length(unique(IPS_offline_Data$posZ))       #Output: 1
 IPS_offline_Data$scanMac <- NULL
 IPS_offline_Data$posZ <- NULL
 
-length(unique(IPS_online_Data$scanedMAC))   #Output: 1
-length(unique(IPS_online_Data$posZ))        #Output: 1
+# length(unique(IPS_online_Data$scanedMAC))   #Output: 1
+# length(unique(IPS_online_Data$posZ))        #Output: 1
 IPS_online_Data$scanMac <- NULL
 IPS_online_Data$posZ <- NULL
 
@@ -177,11 +186,20 @@ write.csv(IPS_online_Data,"C:\\Users\\sangb\\Desktop\\School\\Classes\\STAT\\STA
 
 
 ## Data Import
-```{r Step_3.Data_Import}
+```{r Step_3.Data_Import&Exploration}
 # Import csv
 library(readr)
 IPS_offline_Data <- read_csv("IPS_online_Data.csv")
 IPS_online_Data <- read_csv("IPS_online_Data.csv")
 ```
+
+
+
+```{r Step_4.Data_}
+
+
+
+```
+
 
 
