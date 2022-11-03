@@ -42,7 +42,7 @@ library(ggpubr)    # Automatically add p-values and significance levels  plots.
 library(sf)        # Geo-spatial vector manipulation: points, lines, polygons
 library(ff)
 library(ldat)
-# library(rio)
+library(rio)
 library(jsonlite)
 library(reader)
 library(qdapRegex)
@@ -56,62 +56,61 @@ library(sp)
 # Import CSV files
 
 ```{r}
-offline <- read_csv("tidy_data/csv/offline.csv")
-head(offline)
+offline <- read_csv("tidy_data/tidy_offline.csv")
+summary(offline)
 ```
 
 ```{r}
-online <- read_csv("tidy_data/csv/online.csv")
-head(online)
+online <- read_csv("tidy_data/tidy_online.csv")
+summary(online)
 ```
+## Applying Pythagorean Theorem To `Offline` data
 
 ```{r}
+# I am creating new variables to apply Pythagorean theorem to plot radius 
+offline <- mutate(offline, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates 
+  mutate(offline, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates 
+  mutate(offline, c = (sqrt(a^2+b^2))) # finds distance between (x,y) points
+offline
+```
+
+## Distinct Online Receiver Locations 
+
+```{r}
+# finds distinct points to plot for data visualization of online recorded points 
 on_rec_locs <- online %>% 
-  select(receiverID, x, y) %>% 
+  select(receiver, posX, posY) %>% 
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 on_rec_locs
-plot(on_rec_locs$x, on_rec_locs$y)
+plot(on_rec_locs$posX, on_rec_locs$posY)
 ```
 
+## Distinct Offline Receiver Locations 
 
-# Receiver DF
 ```{r}
+# finds distinct points to plot for data visualization of offline recorded points 
 off_rec_locs <- offline %>% 
-  select(receiverID, x, y) %>% 
+  select(receiver, posX, posY) %>% 
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 off_rec_locs
-plot(off_rec_locs$x, off_rec_locs$y)
+plot(off_rec_locs$posX, off_rec_locs$posY)
 ```
 
-
-# Distance DF
-
+## Access Point Locations
 ```{r}
-off_dist <- offline %>% 
-  rowwise() %>% 
-  select(c("receiverID", "x", "y", "01_mac", "01_x", "01_y")) %>% 
-  distinct() #%>%  
-  # rename(x1= "01_x",
-  #        y1="01_y") %>% 
-  # mutate(x_dis = abs(x-x1)) %>% 
-  # mutate(y_dis=abs(y-y1))
-off_dist
-```
-
-```{r}
-#creating offline ap locations
+# finds distinct points to plot for data visualization of access point locations 
 ap_locs <- offline %>% 
-  select(c("01_mac", "01_x", "01_y")) %>% 
+  select(c("ap_mac", "ap_x", "ap_y")) %>% 
   distinct() %>% 
   na.omit()
 ap_locs
 # checking results
-plot(ap_locs$"01_x", ap_locs$"01_y")
+plot(ap_locs$"ap_x", ap_locs$"ap_y")
 ```
 
-# Creating map
+## Creating Floorplan
 ```{r}
 #MULTILINESTRING
 outer <- rbind(c(-0.5,-1.2), c(-0.5,14.2), c(33.8,14.2), c(33.8,-3.4), c(3,-3.4), c(3,-1.2),c(-0.5,-1.2)) #creating exterior outline
@@ -125,25 +124,23 @@ lw5 <- rbind(c(22.1,2.3), c(22.1,-3.4))
 lw6 <- rbind(c(24.4,2.3), c(24.4,-3.4))
 lw7 <- rbind(c(28,2.3), c(28,-3.4))
 lw8 <- rbind(c(30.3,2.3), c(30.3,-3.4))
-up_rms <- rbind(c(3,14.2), c(3,8.7), c(33.8,8.7)) #creating upper room outline
+up_rms <- rbind(c(3,14.2), c(3,9.7), c(33.8,9.7)) #creating upper room outline
 # Creating lower section separating walls
-uw1 <- rbind(c(9,14.2), c(9,8.7))
-uw2 <- rbind(c(11.5,14.2), c(11.5,8.7))
-uw3 <- rbind(c(13.8,14.2), c(13.8,8.7))
-uw4 <- rbind(c(16.2,14.2), c(16.2,8.7))
-uw5 <- rbind(c(19.7,14.2), c(19.7,8.7))
-uw6 <- rbind(c(22.1,14.2), c(22.1,8.7))
-uw7 <- rbind(c(25.6,14.2), c(25.6,8.7))
-uw8 <- rbind(c(28.1,14.2), c(28.1,8.7))
-uw9 <- rbind(c(30.5,14.2), c(30.5,8.7))
+uw1 <- rbind(c(9,14.2), c(9,9.7))
+uw2 <- rbind(c(11.5,14.2), c(11.5,9.7))
+uw3 <- rbind(c(13.8,14.2), c(13.8,9.7))
+uw4 <- rbind(c(16.2,14.2), c(16.2,9.7))
+uw5 <- rbind(c(19.7,14.2), c(19.7,9.7))
+uw6 <- rbind(c(22.1,14.2), c(22.1,9.7))
+uw7 <- rbind(c(25.6,14.2), c(25.6,9.7))
+uw8 <- rbind(c(28.1,14.2), c(28.1,9.7))
+uw9 <- rbind(c(30.5,14.2), c(30.5,9.7))
 
 #creating multilinestring library(sf)
 (mls <- st_multilinestring(list(outer,low_rms,lw1,lw2,lw3,lw4,lw5,lw6,lw7,lw8,up_rms,uw1,uw2,uw3,uw4,uw5,uw6,uw7,uw8,uw9)))
 
 plot(mls) # inspecting mls
-```
 
-```{r}
 #MULTIPOLYGON
 #center-row LEFT room
 p1 <- rbind(c(3,4), c(3,6.7), c(7.9,6.7), c(7.9,4), c(3,4))
@@ -161,43 +158,128 @@ p5 <- rbind(c(27,4), c(27,6.7), c(31,6.7), c(31,4), c(27,4))
 plot(mpol) # inspecting polygon
 ```
 
+## Plot Combined base florplan
 ```{r}
-ap_color <- ap_locs$`01_mac`
-```
-
-
-```{r}
-grid_outline <- ggplot() +
+base_grid <- ggplot() +
   # inserting floor plan outline
   geom_sf(data = mls) + 
   # inserting room polygons
   geom_sf(data = mpol) +
   # inserting ap locations
-  geom_point(mapping = aes(ap_locs$`01_x`, ap_locs$`01_y`,fill = ap_locs$`01_mac`, colour=ap_locs$`01_mac`),
+  geom_point(data = ap_locs, aes(ap_x, ap_y, colour=ap_mac),
+
              shape = 15,
              size = 1.5,
-             name="AP MACs")+
+             show.legend = NA)+
   # inserting offline receiver locations
-  geom_point(mapping = aes(off_rec_locs$`x`, off_rec_locs$`y`),
+  geom_point(data = off_rec_locs, mapping = aes(posX,posY),
              colour = "grey",
              alpha = .8,
              size = 1,
              name="offline grid")+
-  geom_point(mapping = aes(on_rec_locs$`x`, on_rec_locs$`y`),
+  # inserting online receiver locations
+  geom_point(data = on_rec_locs, aes(posX,posY),
              color = "blue",
              alpha = .3,
              size = 1,
              name="online grid") +
-  ggtitle("Floorplan")+
   labs(
-    # title = "Floorplan",
-    # subtitle = "",
+    title = "Base Floorplan",
+    subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
     # caption = "",
-    # tag = "Original",
+    # tag = "",
     x = "Roughly 35 meters",
     y = "Roughly 18 meters",
     # colour = ""
   )
-  # inserting online receiver locations
-grid_outline
+base_grid
+```
+
+```{r}
+baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
+```
+
+
+```{r}
+baseFloorplan + geom_circle(aes(x0=ap_x, y0=ap_y, r=c, fill=rssi), data = offline)
+```
+
+
+
+## Offline Access Points
+```{r}
+select(offline, orientation) %>% distinct()
+```
+
+```{r}
+new_off <- offline[-c(3,9,10,13,14)]
+new_off
+```
+
+```{r}
+ap_locs
+c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist"))
+rad <- merge(ap_locs, c_max, by="ap_mac")
+rad
+```
+
+
+### 00:0f:a3:39:e1:c0
+```{r}
+ap_00_0f_a3_39_e1_c0 <- filter(offline, ap_mac == "00:0f:a3:39:e1:c0")
+ap_00_0f_a3_39_e1_c0
+```
+
+
+
+```{r}
+lmod <- lm(rssi ~ timestamp + posX + posY + orientation + ap_mac + ap_x + ap_y + c, new_off)
+summary(lmod)
+```
+
+```{r}
+plot(lmod)
+```
+
+```{r}
+head(fortify(lmod))
+```
+
+```{r}
+ggplot(data = lmod, aes(.fitted, .stdresid)) +
+  geom_point(aes(colour = factor(ap_mac))) + 
+  geom_hline(yintercept = 0)+
+  geom_smooth(se = F)
+```
+
+```{r}
+ggplot(data = lmod, aes(.fitted, .resid)) +
+  geom_point(aes(colour = factor(ap_mac))) + 
+  geom_hline(yintercept = 0)+
+  geom_smooth(method = "lm")
+```
+
+```{r}
+c_lm <- lm(c ~ rssi + orientation + ap_mac + posX + posY, new_off)
+summary(c_lm)
+```
+```{r}
+head(fortify(c_lm))
+```
+
+```{r}
+rssi_lm <- lm(rssi ~ orientation + posX + posY + ap_mac + c, new_off)
+summary(rssi_lm)
+```
+```{r}
+plot(rssi_lm)
+```
+
+
+
+```{r}
+# ggplot(data = rssi_lm, aes(.fitted, .stdresid)) +
+#   geom_point(aes(colour = factor(c))) +
+#   geom_hline(yintercept = 0) +
+#   geom_smooth( method = "lm")
 ```
