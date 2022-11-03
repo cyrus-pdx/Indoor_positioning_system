@@ -9,7 +9,7 @@
  ┣ 📂instructions
  ┃ ┣ 📜annotated_map.png
  ┃ ┣ 📜floorplan.jpg
- ┃ ┗ 📜Projects  Instructions.pdf
+ ┃ ┗ 📜Projects Instructions.pdf
  ┣ 📂raw_data
  ┃ ┣ 📜accessPointLocations.txt
  ┃ ┣ 📜offline.final.trace.txt
