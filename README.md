@@ -20,7 +20,7 @@
  ┗ 📜README.md
  ```
  <p align="right">
-<a href="https://github.com/cyrus-pdx/wifi_trilateration/tree/Sang-Buster" target="_blank">
+<a href="https://github.com/cyrus-pdx/Indoor_positioning_system/tree/SingSong" target="_blank">
 <img src="https://img.shields.io/badge/wifi--IPS-v0.1-blue.svg" />
 </a>
 </p>
@@ -29,7 +29,3 @@
 - Created `clean_data/cleaned_Data.zip` after data tidying (🛠️ Still in progress...)
 - `cleaned_Data.zip` is still in progress
 - Created `clean_data/IPS.qmd` as source code file (🛠️ Still in progress...)
-=======
-# Indoor_positioning_system
-develop a positioning system from a dataset
->>>>>>> parent of 3fb9340 (new start)
