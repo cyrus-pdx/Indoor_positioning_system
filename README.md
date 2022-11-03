@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Wi-Fi Indoor Positioning System (IPS)
 
 ```
