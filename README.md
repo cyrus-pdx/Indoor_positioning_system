@@ -1,16 +1,35 @@
-# Indoor WiFi fingerprinting/ trilateration from a provided dataset. 
-  Files:
-  - agenda.md:                    
-  - etc:                          contains supplementary information
-    - accessPointLocations.txt    ap locations mac and spatial info
-    - annotated_map.png           updated floorplan
-    - floorplan.jpg               layout of data collection area
-  - grid.Rmd                      spatial evaluation of data
-  - IPS.qmd                       new version of .Rmd to tidy raw data
-  - raw_data:                     contains original data files
-    - offline.final.trace.txt     original offline data 
-    - online.final.trace.txt      original online data
-  - scripts:                      contains script files for processing the data
-    - tidying_raw_data            script to tidy raw off/online data
-  - tidy_data:                    tidy off/online data
-  - trilat.Rmd                    create location system
+<<<<<<< HEAD
+# Wi-Fi Indoor Positioning System (IPS)
+
+```
+📦wifi_trilateration
+ ┣ 📂clean_data
+ ┃ ┣ 📜cleaned_Data.zip
+ ┃ ┗ 📜IPS.qmd
+ ┣ 📂instructions
+ ┃ ┣ 📜annotated_map.png
+ ┃ ┣ 📜floorplan.jpg
+ ┃ ┗ 📜Projects  Instructions.pdf
+ ┣ 📂raw_data
+ ┃ ┣ 📜accessPointLocations.txt
+ ┃ ┣ 📜offline.final.trace.txt
+ ┃ ┗ 📜online.final.trace.txt
+ ┣ 📜.gitignore
+ ┣ 📜LICENSE
+ ┣ 📜project.Rproj
+ ┗ 📜README.md
+ ```
+ <p align="right">
+<a href="https://github.com/cyrus-pdx/wifi_trilateration/tree/Sang-Buster" target="_blank">
+<img src="https://img.shields.io/badge/wifi--IPS-v0.1-blue.svg" />
+</a>
+</p>
+
+- Adjusted file directories
+- Created `clean_data/cleaned_Data.zip` after data tidying (🛠️ Still in progress...)
+- `cleaned_Data.zip` is still in progress
+- Created `clean_data/IPS.qmd` as source code file (🛠️ Still in progress...)
+=======
+# Indoor_positioning_system
+develop a positioning system from a dataset
+>>>>>>> parent of 3fb9340 (new start)
