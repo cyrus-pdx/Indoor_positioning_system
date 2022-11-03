@@ -248,18 +248,22 @@ head(tidy_online)
 ## Writing Data
 ```{r Step_3.Data_Import}
 # Export df to csv
-tar("tidy_data/offline.tar.gz", write.csv(tidy_offline,"tidy_data/tidy_offline.csv", row.names = FALSE), compression="gzip")
+# tar("tidy_data/offline.tar.gz", write.csv(tidy_offline,"tidy_data/tidy_offline.csv", row.names = FALSE), compression="gzip") # create csv & tar.gz
+write.csv(tidy_offline,"tidy_data/tidy_offline.csv")
+
 ```
 
 ```{r Step_3.Data_Import}
 # Export df to csv
-tar("tidy_data/online.tar.gz", write.csv(tidy_online,"tidy_data/tidy_online.csv", row.names = FALSE), compression="gzip")
+# tar("tidy_data/online.tar.gz", write.csv(tidy_online,"tidy_data/tidy_online.csv", row.names = FALSE), compression="gzip") # creates csv and tar.gz
+write.csv(tidy_online,"tidy_data/tidy_online.csv")
+
 ```
 
 ## Importing Data
 ```{r}
 # Import csv
-# library(readr)
-# offline <- read_csv("tidy_online.csv")
-# online <- read_csv("tidy_online.csv")
+library(readr)
+offline <- read_csv("tidy_data/tidy_online.csv")
+online <- read_csv("tidy_data/tidy_online.csv")
 ```
