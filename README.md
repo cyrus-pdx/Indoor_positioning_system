@@ -30,6 +30,6 @@
 
 <p align="right">
 <a href="https://github.com/cyrus-pdx/Indoor_positioning_system/tree/SingSong" target="_blank">
-<img src="https://img.shields.io/github/last-commit/cyrus-pdx/Indoor_positioning_system/SingSong?logo=Rstudio" />
+<img src="https://img.shields.io/github/last-commit/cyrus-pdx/Indoor_positioning_system/SingSong" />
 </a>
 </p>
