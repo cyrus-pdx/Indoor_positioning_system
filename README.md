@@ -1,7 +1,8 @@
 # Wi-Fi Indoor Positioning System (IPS)
 
 ```
-📦wifi_trilateration
+📦Indoor Positioning System
+ ┣ 📂.Rproj.user
  ┣ 📂clean_data
  ┃ ┣ 📜cleaned_Data.zip
  ┃ ┗ 📜IPS.qmd
@@ -15,7 +16,6 @@
  ┃ ┗ 📜online.final.trace.txt
  ┣ 📜.gitignore
  ┣ 📜LICENSE
- ┣ 📜project.Rproj
  ┗ 📜README.md
  ```
  <p align="right">
