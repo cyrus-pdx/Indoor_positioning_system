@@ -14,7 +14,6 @@
  ┃ ┣ 📄accessPointLocations.txt
  ┃ ┣ 📄offline.final.trace.txt
  ┃ ┗ 📄online.final.trace.txt
- ┣ 📄.gitignore
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
@@ -35,4 +34,3 @@
 <img src="https://img.shields.io/github/last-commit/cyrus-pdx/Indoor_positioning_system/SingSong" />
 </a>
 </p>
-
