@@ -14,7 +14,6 @@
  ┃ ┣ 📄accessPointLocations.txt
  ┃ ┣ 📄offline.final.trace.txt
  ┃ ┗ 📄online.final.trace.txt
- ┣ 📄.gitignore
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
