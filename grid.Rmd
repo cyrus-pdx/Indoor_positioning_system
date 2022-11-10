@@ -50,17 +50,20 @@ library(sp)
 ```
 
 ```{r}
+# Set working directory as needed
 #setwd("")
 ```
 
 # Import CSV files
 
 ```{r}
+#import offline data
 offline <- read_csv("tidy_data/tidy_offline.csv")
 summary(offline)
 ```
 
 ```{r}
+#Import online data
 online <- read_csv("tidy_data/tidy_online.csv")
 summary(online)
 ```
@@ -83,7 +86,7 @@ on_rec_locs <- online %>%
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 on_rec_locs
-plot(on_rec_locs$posX, on_rec_locs$posY)
+plot(on_rec_locs$posX, on_rec_locs$posY) # checking plot locations
 ```
 
 ## Distinct Offline Receiver Locations 
@@ -95,7 +98,7 @@ off_rec_locs <- offline %>%
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 off_rec_locs
-plot(off_rec_locs$posX, off_rec_locs$posY)
+plot(off_rec_locs$posX, off_rec_locs$posY) # checking plot locations
 ```
 
 ## Access Point Locations
@@ -103,11 +106,11 @@ plot(off_rec_locs$posX, off_rec_locs$posY)
 # finds distinct points to plot for data visualization of access point locations 
 ap_locs <- offline %>% 
   select(c("ap_mac", "ap_x", "ap_y")) %>% 
-  distinct() %>% 
-  na.omit()
+  distinct() %>%  # trimming excess access point locations 
+  na.omit()  # removing na values
 ap_locs
 # checking results
-plot(ap_locs$"ap_x", ap_locs$"ap_y")
+plot(ap_locs$"ap_x", ap_locs$"ap_y") # plotting access point locations
 ```
 
 ### Access Points Min/Max Distances
@@ -118,11 +121,11 @@ plot(ap_locs$"ap_x", ap_locs$"ap_y")
 
 
 ```{r}
-ap_locs
-c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist"))
-c_min <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), min), c("ap_mac", "min_dist"))
-ap_dist <- merge(ap_locs, c_max, by="ap_mac")
-ap_dist <- merge(ap_dist, c_min, by="ap_mac")
+ap_locs # checking access point locations df
+c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist")) # finding max distance per access point
+c_min <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), min), c("ap_mac", "min_dist")) # finding the minimum distance from access point to offline (x,y) coordinate
+ap_dist <- merge(ap_locs, c_max, by="ap_mac") # combining c_max df to ap_dist df
+ap_dist <- merge(ap_dist, c_min, by="ap_mac") # combining c_min df to ap_dist df
 ap_dist
 ```
 
@@ -216,8 +219,14 @@ baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
 
 ```{r}
 new_off <- offline[-c(3,9,10,13,14)]
-new_off
+view(new_off)
 ```
+
+```{r}
+off_xy <- new_off %>% select(posX, posY) %>% unique()
+off_xy
+```
+
 
 ```{r}
 # Setting rssi as the dependent variable because it is what varies given proximity
@@ -244,9 +253,9 @@ fortify(rssi_lm2)
 ```
 
 ```{r}
-split.data.frame(new_off, f = list(new_off$posX, new_off$posY))
+new_split <- new_off %>% group_split(posX, posY) # breaking up dataframe so it's easier to plot.
+new_split[1] # format to call split df when plotting
 ```
-
 
 
 ```{r}
