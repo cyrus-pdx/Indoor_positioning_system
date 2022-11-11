@@ -3,27 +3,27 @@
 ## Group Roles:
 | Member | Role |
 | ----------- | ----------- |
-| braadams | TBD |
-| cyrus-pdx | TBD | 
-| jadiri28 | TBD |
-| Sang-Buster | TBD | 
+| braadams | Tidy Scripting |
+| cyrus-pdx | Visualization | 
+| jadiri28 | Documentation |
+| Sang-Buster | Positioning | 
 
 ## Project Agenda:
-- [ ] Establish group member roles.
+- [x] Establish group member roles.
 - [ ] Establish timeline.
 - [ ] Review updated project.
 
 
 ## Member Agenda:
 ### braadams:
-- [ ] a.
+- [ ] Create R script for tidying any data set. 
 - [ ] b.
 - [ ] c.
 
 ##### Files Currently Editing
 - `grid.Rmd`
 Agenda/Role
-: I have created a base grid with colorized coordinate data that can be found in the etc directory. My goal is to plot an interactive overlay of the signal strengths for each `offline` coordinate grouped by the broadcasting access point. To accomplish this I used the Pythagorean theorem to create a new variable called `c` to map `rssi` values to distance to eventually understand accuracy when predicting location. 
+: Develop methodology for tidying any data set to desired data frame.
 
 ### cyrus-pdx:
 - [x] create base grid
@@ -35,16 +35,16 @@ Agenda/Role
 
 ##### Files Currently Editing
 Agenda/Role
-: Example.txt
+: I have created a base grid with colorized coordinate data that can be found in the etc directory. My goal is to plot an interactive overlay of the signal strengths for each `offline` coordinate grouped by the broadcasting access point. To accomplish this I used the Pythagorean theorem to create a new variable called `c` to map `rssi` values to distance to eventually understand accuracy when predicting location. 
 
 ### jadiri28:
-- [ ] a.
+- [ ] Complete introduction paragraph
 - [ ] b.
 - [ ] c.
 
 ##### Files Currently Editing
 Agenda/Role
-: Example.txt
+: Begin working on report introduction paragraph.
 
 ### Sang-Buster:
 - [ ] a.
@@ -53,4 +53,4 @@ Agenda/Role
 
 ##### Files Currently Editing
 Agenda/Role
-: Example.txt
+: Developing KNN methodology for indoor positioning. 
