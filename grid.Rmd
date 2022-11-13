@@ -200,79 +200,80 @@ baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
 ```
 
 
-```{r}
-baseFloorplan + geom_circle(aes(x0=ap_x, y0=ap_y, r=c, fill=rssi), data = offline)
+```{r distance}
+base_grid + geom_circle(aes(x0=ap_x, y0=ap_y, r=c, fill=rssi), data = offline)
 ```
 
 
 
 ## Offline Access Points
 ```{r}
-select(offline, orientation) %>% distinct()
+# select(offline, orientation) %>% distinct()
 ```
 
 ```{r}
-new_off <- offline[-c(3,9,10,13,14)]
-new_off
+# new_off <- offline[-c(3,9,10,13,14)]
+# new_off
 ```
 
 ```{r}
-ap_locs
-c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist"))
-rad <- merge(ap_locs, c_max, by="ap_mac")
-rad
+# ap_locs
+# c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist"))
+# rad <- merge(ap_locs, c_max, by="ap_mac")
+# rad
 ```
 
 
 ### 00:0f:a3:39:e1:c0
 ```{r}
-ap_00_0f_a3_39_e1_c0 <- filter(offline, ap_mac == "00:0f:a3:39:e1:c0")
-ap_00_0f_a3_39_e1_c0
+# ap_00_0f_a3_39_e1_c0 <- filter(offline, ap_mac == "00:0f:a3:39:e1:c0")
+# ap_00_0f_a3_39_e1_c0
 ```
 
 
 
 ```{r}
-lmod <- lm(rssi ~ timestamp + posX + posY + orientation + ap_mac + ap_x + ap_y + c, new_off)
-summary(lmod)
+# lmod <- lm(rssi ~ timestamp + posX + posY + orientation + ap_mac + ap_x + ap_y + c, new_off)
+# summary(lmod)
 ```
 
 ```{r}
-plot(lmod)
+# plot(lmod)
 ```
 
 ```{r}
-head(fortify(lmod))
+# head(fortify(lmod))
 ```
 
 ```{r}
-ggplot(data = lmod, aes(.fitted, .stdresid)) +
-  geom_point(aes(colour = factor(ap_mac))) + 
-  geom_hline(yintercept = 0)+
-  geom_smooth(se = F)
+# ggplot(data = lmod, aes(.fitted, .stdresid)) +
+#   geom_point(aes(colour = factor(ap_mac))) + 
+#   geom_hline(yintercept = 0)+
+#   geom_smooth(se = F)
 ```
 
 ```{r}
-ggplot(data = lmod, aes(.fitted, .resid)) +
-  geom_point(aes(colour = factor(ap_mac))) + 
-  geom_hline(yintercept = 0)+
-  geom_smooth(method = "lm")
+# ggplot(data = lmod, aes(.fitted, .resid)) +
+#   geom_point(aes(colour = factor(ap_mac))) + 
+#   geom_hline(yintercept = 0)+
+#   geom_smooth(method = "lm")
 ```
 
 ```{r}
-c_lm <- lm(c ~ rssi + orientation + ap_mac + posX + posY, new_off)
-summary(c_lm)
+# c_lm <- lm(c ~ rssi + orientation + ap_mac + posX + posY, new_off)
+# summary(c_lm)
 ```
 ```{r}
 head(fortify(c_lm))
 ```
 
 ```{r}
-rssi_lm <- lm(rssi ~ orientation + posX + posY + ap_mac + c, new_off)
-summary(rssi_lm)
+# rssi_lm <- lm(rssi ~ orientation + posX + posY + ap_mac + c, new_off)
+# summary(rssi_lm)
 ```
+
 ```{r}
-plot(rssi_lm)
+# plot(rssi_lm)
 ```
 
 
