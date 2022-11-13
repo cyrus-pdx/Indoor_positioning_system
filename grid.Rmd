@@ -50,17 +50,26 @@ library(sp)
 ```
 
 ```{r}
+# Set working directory as needed
 #setwd("")
 ```
 
 # Import CSV files
 
 ```{r}
+<<<<<<< HEAD
+=======
+#import offline data
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
 offline <- read_csv("tidy_data/tidy_offline.csv")
 summary(offline)
 ```
 
 ```{r}
+<<<<<<< HEAD
+=======
+#Import online data
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
 online <- read_csv("tidy_data/tidy_online.csv")
 summary(online)
 ```
@@ -83,7 +92,11 @@ on_rec_locs <- online %>%
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 on_rec_locs
+<<<<<<< HEAD
 plot(on_rec_locs$posX, on_rec_locs$posY)
+=======
+plot(on_rec_locs$posX, on_rec_locs$posY) # checking plot locations
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
 ```
 
 ## Distinct Offline Receiver Locations 
@@ -95,6 +108,7 @@ off_rec_locs <- offline %>%
   distinct()
 #rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 off_rec_locs
+<<<<<<< HEAD
 plot(off_rec_locs$posX, off_rec_locs$posY)
 ```
 
@@ -108,6 +122,37 @@ ap_locs <- offline %>%
 ap_locs
 # checking results
 plot(ap_locs$"ap_x", ap_locs$"ap_y")
+=======
+plot(off_rec_locs$posX, off_rec_locs$posY) # checking plot locations
+```
+
+## Access Point Locations
+```{r}
+# finds distinct points to plot for data visualization of access point locations 
+ap_locs <- offline %>% 
+  select(c("ap_mac", "ap_x", "ap_y")) %>% 
+  distinct() %>%  # trimming excess access point locations 
+  na.omit()  # removing na values
+ap_locs
+# checking results
+plot(ap_locs$"ap_x", ap_locs$"ap_y") # plotting access point locations
+```
+
+### Access Points Min/Max Distances
+```{r}
+# select(offline, orientation) %>% distinct()
+```
+
+
+
+```{r}
+ap_locs # checking access point locations df
+c_max <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), max), c("ap_mac", "max_dist")) # finding max distance per access point
+c_min <- setNames(aggregate(new_off$c, by = list(new_off$ap_mac), min), c("ap_mac", "min_dist")) # finding the minimum distance from access point to offline (x,y) coordinate
+ap_dist <- merge(ap_locs, c_max, by="ap_mac") # combining c_max df to ap_dist df
+ap_dist <- merge(ap_dist, c_min, by="ap_mac") # combining c_min df to ap_dist df
+ap_dist
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
 ```
 
 ## Creating Floorplan
@@ -175,14 +220,22 @@ base_grid <- ggplot() +
   geom_point(data = off_rec_locs, mapping = aes(posX,posY),
              colour = "grey",
              alpha = .8,
+<<<<<<< HEAD
              size = 1,
              name="offline grid")+
+=======
+             size = 1)+
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
   # inserting online receiver locations
   geom_point(data = on_rec_locs, aes(posX,posY),
              color = "blue",
              alpha = .3,
+<<<<<<< HEAD
              size = 1,
              name="online grid") +
+=======
+             size = 1) +
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
   labs(
     title = "Base Floorplan",
     subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
@@ -198,6 +251,7 @@ base_grid
 ```{r}
 baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
 ```
+<<<<<<< HEAD
 
 
 ```{r distance}
@@ -283,4 +337,53 @@ head(fortify(c_lm))
 #   geom_point(aes(colour = factor(c))) +
 #   geom_hline(yintercept = 0) +
 #   geom_smooth( method = "lm")
+=======
+## Linear model to establish significance of variables
+
+```{r}
+new_off <- offline[-c(3,9,10,13,14)]
+view(new_off)
 ```
+
+```{r}
+off_xy <- new_off %>% select(posX, posY) %>% unique()
+off_xy
+```
+
+
+```{r}
+# Setting rssi as the dependent variable because it is what varies given proximity
+rssi_lm <- lm(rssi~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
+summary(rssi_lm) # note: orientation has a p value of 0.432 making it insignificant
+```
+
+```{r}
+# Setting rssi as the dependent variable because it is what varies given proximity 
+rssi_lm2 <- lm(rssi~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
+summary(rssi_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to rssi values that determine signal strength
+```
+
+```{r}
+fortify(rssi_lm2)
+```
+
+### Ploting timeline values
+
+```{r}
+# uniq_xy <- 
+  new_off %>% select(posX, posY) %>% distinct()
+# uniq_xy
+```
+
+```{r}
+new_split <- new_off %>% group_split(posX, posY) # breaking up dataframe so it's easier to plot.
+new_split[1] # format to call split df when plotting
+>>>>>>> 25e25012977925baeeec88d75fc4a088102965bd
+```
+
+
+```{r}
+# baseFloorplan + geom_circle(aes(x0=ap_x, y0=ap_y, r=c), data = offline)
+```
+
+
