@@ -2,8 +2,6 @@
 
 ```
 📦Indoor_positioning_system
- ┣ 📂.git
- ┣ 📂.Rproj.user
  ┣ 📂instructions
  ┃ ┣ 📄annotated_map.png
  ┃ ┣ 📄floorplan.jpg
