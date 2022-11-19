@@ -1,4 +1,4 @@
-# Wi-Fi Indoor Positioning System (IPS)
+# Wi-Fi Indoor Positioning System (IPS) based on KNN Algorithm 
 
 ```
 📦Indoor_positioning_system
@@ -29,10 +29,12 @@
 </a>
 </p>
 
-
-- Adjusted file directories
-- Created `clean_data/cleaned_Data.zip` after data tidying (🛠️ Still in progress...)
-- Created `clean_data/IPS.qmd` as source code file (🛠️ Still in progress...)
+Objective:
+- [x] 1. Data Cleaning 
+- [ ] 2. Data Analysis (🛠️ in progress...)
+- [ ] 3. Data Visualizations 
+- [ ] 4. Presentation 
+- [ ] 5. Report
 
 <p align="right">
 <a href="https://github.com/cyrus-pdx/Indoor_positioning_system/tree/SingSong" target="_blank">
