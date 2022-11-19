@@ -1,0 +1,6 @@
+"0","# xfun::embed_file(""SignalByLocation.pdf"")"
+"0","ggplot(data = IPS_sampledata, aes(y=mac, x = orientation), group=(mac)) +"
+"0","  geom_boxplot()+"
+"0","  facet_wrap(paste(posX, posY)~signal, scales = ""free"")+"
+"0","  theme(axis.text.x = element_text(angle = 90, hjust = 1))"
+"0","?paste"

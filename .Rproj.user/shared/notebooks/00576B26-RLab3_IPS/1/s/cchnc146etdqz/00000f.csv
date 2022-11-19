@@ -1,0 +1,2 @@
+"0","right_join(IPS_sampledata,mac_locs,by = c(""mac""= ""Macs"")) -> IPS_sampledata # Join by MAC address"
+"0","                                                                            # right_join has the added benefit of performing part 2"

@@ -1,0 +1,3 @@
+"0","IPS_sampledata %>% "
+"0","  mutate(orientation = (round(orientation / 45) * 45) %% 360) ->"
+"0","  IPS_sampledata"

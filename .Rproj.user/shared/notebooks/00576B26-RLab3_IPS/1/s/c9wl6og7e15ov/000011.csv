@@ -1,0 +1,3 @@
+"0","# loads data set IPS_sampledata"
+"0","load(""IPS_portion.RData"")"
+"0","mac_locs <- readr::read_table(""accessPointLocations.txt"")"

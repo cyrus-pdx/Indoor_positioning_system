@@ -1,19 +1,26 @@
 # Wi-Fi Indoor Positioning System (IPS)
 
 ```
-📦Indoor Positioning System
+📦Indoor_positioning_system
+ ┣ 📂.git
  ┣ 📂.Rproj.user
- ┣ 📂clean_data
- ┃ ┣ 📄cleaned_Data.zip
- ┃ ┗ 📄IPS.qmd
  ┣ 📂instructions
  ┃ ┣ 📄annotated_map.png
  ┃ ┣ 📄floorplan.jpg
- ┃ ┗ 📄Projects Instructions.pdf
+ ┃ ┗ 📄Projects  Instructions.pdf
  ┣ 📂raw_data
  ┃ ┣ 📄accessPointLocations.txt
  ┃ ┣ 📄offline.final.trace.txt
  ┃ ┗ 📄online.final.trace.txt
+ ┣ 📂src
+ ┃ ┣ 📂data_anaysis
+ ┃ ┃ ┗ 📄Data_Analysis.qmd
+ ┃ ┣ 📂data_clean
+ ┃ ┃ ┣ 📄Data_Cleaning.qmd
+ ┃ ┃ ┣ 📄IPS_Offline.RData
+ ┃ ┃ ┗ 📄IPS_Online.RData
+ ┃ ┗ 📂data_plot
+ ┃ ┃ ┗ 📄Data_Visualization.qmd
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
