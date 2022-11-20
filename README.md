@@ -33,9 +33,9 @@
  ┃ ┃ ┣ 📄offline.final.trace.txt
  ┃ ┃ ┗ 📄online.final.trace.txt
  ┃ ┗ 📄clean_data.R                         // Data tidying
- ┣ 📄Agenda.md                          // Members' role
+ ┣ 📄agenda.md                          // Members' role
  ┣ 📄LICENSE
  ┗ 📄README.md
  ```
 
- **PS**: Please go to [`Agent.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/agenda.md) to update yourselves or check others' update.
+ **PS**: Please go to [`agenda.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/agenda.md) to update yourselves or check others' update.
