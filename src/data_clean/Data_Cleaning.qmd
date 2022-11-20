@@ -95,7 +95,10 @@ library(ellipse)    # Simultaneous confidence interval region to check C.I. of 2
 library(plotly)     # User interactive plots
 
 set.seed(27)        # make random results reproducible
-setwd(getwd())
+
+WD <- getwd()
+setwd(WD)
+remove(WD)
 ```
 
 ### Data Cleaning
