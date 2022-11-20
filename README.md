@@ -3,24 +3,19 @@
 ```
 📦Indoor_positioning_system
  ┣ 📂etc
- ┃ ┣ 📂raw_data
- ┃ ┃ ┣ 📄accessPointLocations.txt
- ┃ ┃ ┣ 📄offline.final.trace.txt
- ┃ ┃ ┗ 📄online.final.trace.txt
  ┃ ┣ 📄annotated_map.png
  ┃ ┣ 📄floorplan.jpg
  ┃ ┗ 📄Projects  Instructions.pdf
  ┣ 📂src
- ┃ ┣ 📂data-visualization
- ┃ ┃ ┗ 📂Grid_plot
- ┃ ┣ 📂data_anaysis
- ┃ ┃ ┗ 📄Data_Analysis.qmd
- ┃ ┣ 📂data_clean
- ┃ ┃ ┣ 📄Data_Cleaning.qmd
- ┃ ┃ ┣ 📄IPS_Offline.RData
- ┃ ┃ ┗ 📄IPS_Online.RData
- ┃ ┗ 📂data_plot
- ┃ ┃ ┗ 📄Data_Visualization.qmd
+ ┃ ┣ 📂raw_data
+ ┃ ┃ ┣ 📄accessPointLocations.txt
+ ┃ ┃ ┣ 📄offline.final.trace.txt
+ ┃ ┃ ┗ 📄online.final.trace.txt
+ ┃ ┣ 📄IPS_Offline.RData
+ ┃ ┣ 📄IPS_Online.RData
+ ┃ ┣ 📄Step.1_Data_Cleaning.qmd
+ ┃ ┣ 📄Step.2_Data_Analysis.qmd
+ ┃ ┗ 📄Step.3_Data_Visualization.qmd
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
