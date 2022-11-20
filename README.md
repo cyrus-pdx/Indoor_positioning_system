@@ -31,7 +31,7 @@
 </a>
 </p>
 
-Objective:
+**Objective**:
 - [x] 1. Data Cleaning 
 - [ ] 2. Data Analysis (🛠️ in progress...)
 - [ ] 3. Data Visualizations 
