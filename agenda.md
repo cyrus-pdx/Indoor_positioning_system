@@ -20,12 +20,12 @@ braadams:
 </br>
 
 cyrus-pdx:
-- [x] create base grid
-- [x] find distances from AP's to receiver locations
-- [ ] plot `rssi` values over the base grid (🛠️ in progress...)
-- [ ] plot `c` values over the base grid
-- [ ] create interactive plot to show combined data over the base grid
-- [ ] use `c`, `mac_ap`, and `rssi` value to create methodology for IPS.
+- [x] Create base grid
+- [x] Find distances from AP's to receiver locations
+- [ ] Plot `rssi` values over the base grid (🛠️ in progress...)
+- [ ] Plot `c` values over the base grid
+- [ ] Create interactive plot to show combined data over the base grid
+- [ ] Use `c`, `mac_ap`, and `rssi` value to create methodology for IPS.
 
 </br>
 
