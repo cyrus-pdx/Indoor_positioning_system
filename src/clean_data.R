@@ -108,24 +108,27 @@ IPS_offline_Data$posZ <- NULL
 IPS_online_Data$scanedMAC <- NULL
 IPS_online_Data$posZ <- NULL
 
-# Orientation conversion
-rec_orient <- function(orientation) {
-  # Generate a list of the orientation values
+# Orientation -> Angle # 
+Ori.to.Angle <- function(angles) {
+  refs = seq(0, by=45, length=9)
+  q = sapply(angles, function(o) which.min(abs(o-refs)))
+  c(refs[1:8], 0)[q]
+}
+# Orientation -> Direction 
+Ori.to.Direction <- function(orientation) {
   angles = seq(from=0, to=360, by=45) 
-  # Given a list of orientations, return the orientation angle that is closest for each item
   q = sapply(orientation, function(index) which.min(abs(index-angles))) 
-  # Convert q to an item from 1-8, where 1 is E, 2 is NE, etc
   directions_index <- c(1:8, 1)[q]
-  # "pretty print" versions of the orientation list
   directions = c("E→", "NE↗", "N↑", "NW↖", "W←", "SW↙", "S↓", "SE↘") 
-  # Convert directions_input to the "pretty print" versions
   directions[directions_index] 
-  # angles = paste(angles, directions, sep = '=') concatenate angles# 1-8 with directions
 }
 
 # Apply function from above to orientation data
-IPS_offline_Data$angle <- rec_orient(IPS_offline_Data$orientation) 
-IPS_online_Data$angle <- rec_orient(IPS_online_Data$orientation) 
+IPS_offline_Data$angle <- Ori.to.Angle(IPS_offline_Data$orientation) 
+IPS_online_Data$angle <- Ori.to.Angle(IPS_online_Data$orientation) 
+
+IPS_offline_Data$direction <- Ori.to.Direction(IPS_offline_Data$orientation) 
+IPS_online_Data$direction <- Ori.to.Direction(IPS_online_Data$orientation) 
 
 # Number of MAC addreses = number of frequency channels, should be 6 MAC for 6 WAP, with 6 Freq
 AP_Loc <- read.table("raw_data/accessPointLocations.txt", header=T)
@@ -133,10 +136,25 @@ IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% AP_Loc$Macs,]
 IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 
 # Since there is a 1:1 relationship between Macs and frequencies, drop freq channel
-IPS_offline_Data$channel <- NULL
-IPS_online_Data$channel <- NULL
-
-#Clear unneeded objects
+IPS_offline_Data$frequency <- NULL
+IPS_online_Data$frequency <- NULL
+# Paste all combos of x and y
+IPS_offline_Data$posXY <- paste(IPS_offline_Data$posX, IPS_offline_Data$posY, sep=", ") 
+IPS_online_Data$posXY <- paste(IPS_online_Data$posX, IPS_online_Data$posY, sep=", ") 
+# Create a list of dfs for every combo of posXY, angle, and AP
+Offline_RSSI.statCompute <- with(IPS_offline_Data, by(IPS_offline_Data, list(posXY, angle, MAC), function(x) x))
+#Get signal stats on each df
+offline.signalStat <- lapply(Offline_RSSI.statCompute,
+                             function (oneLoc.Angle.AP) {
+                               stats = oneLoc.Angle.AP[1, ]
+                               stats$medSignal = median(oneLoc.Angle.AP$RSSI)
+                               stats$avgSignal = mean(oneLoc.Angle.AP$RSSI)
+                               stats$sdSignal = sd(oneLoc.Angle.AP$RSSI)
+                               stats$iqrSignal = IQR(oneLoc.Angle.AP$RSSI)
+                               stats
+                             })
+IPS_offline_Data <- do.call("rbind", offline.signalStat)
+# Clear unneeded objects
 remove(offlines)
 remove(onlines)
 remove(offline_tmp)
@@ -144,7 +162,8 @@ remove(online_tmp)
 remove(offline_data_txt)
 remove(online_data_txt)
 remove(varList)
-
+remove(Offline_RSSI.statCompute)
+remove(offline.signalStat)
 
 #--------------------------------------------------------#
 #------------------Step 3: Data Saving-------------------#
@@ -152,8 +171,4 @@ remove(varList)
 
 save(IPS_offline_Data, file = "IPS_Offline.RData")
 save(IPS_online_Data, file = "IPS_Online.RData")
-
-# Export DF to CSV + Import csv
-# write.csv(IPS_offline_Data, "IPS_offline_Data.csv", row.names = FALSE)
-# write.csv(IPS_online_Data, "IPS_online_Data.csv", row.names = FALSE)
 
