@@ -2,15 +2,17 @@
 
 ```
 📦Indoor_positioning_system
- ┣ 📂instructions
+ ┣ 📂etc
+ ┃ ┣ 📂raw_data
+ ┃ ┃ ┣ 📄accessPointLocations.txt
+ ┃ ┃ ┣ 📄offline.final.trace.txt
+ ┃ ┃ ┗ 📄online.final.trace.txt
  ┃ ┣ 📄annotated_map.png
  ┃ ┣ 📄floorplan.jpg
  ┃ ┗ 📄Projects  Instructions.pdf
- ┣ 📂raw_data
- ┃ ┣ 📄accessPointLocations.txt
- ┃ ┣ 📄offline.final.trace.txt
- ┃ ┗ 📄online.final.trace.txt
  ┣ 📂src
+ ┃ ┣ 📂data-visualization
+ ┃ ┃ ┗ 📂Grid_plot
  ┃ ┣ 📂data_anaysis
  ┃ ┃ ┗ 📄Data_Analysis.qmd
  ┃ ┣ 📂data_clean
