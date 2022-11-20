@@ -35,5 +35,5 @@ jadiri28:
 </br>
 
 Sang-Buster:
-- [x] a. Complete data tidyng
-- [ ] b. Complete KNN algorithm (🛠️ in progress...)
+- [x] Complete data tidyng
+- [ ] Complete KNN algorithm (🛠️ in progress...)
