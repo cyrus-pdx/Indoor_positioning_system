@@ -191,7 +191,7 @@ IPS_offline_Data$direction <- Ori.to.Direction(IPS_offline_Data$orientation)
 IPS_online_Data$direction <- Ori.to.Direction(IPS_online_Data$orientation) 
 
 # Number of MAC addreses = number of frequency channels, should be 6 MAC for 6 WAP, with 6 Freq
-AP_Loc <- read.table("accessPointLocations.txt", header=T)
+AP_Loc <- read.table("raw_data/accessPointLocations.txt", header=T)
 IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% AP_Loc$Macs,]
 IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 
