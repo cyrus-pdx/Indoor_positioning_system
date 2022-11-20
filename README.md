@@ -38,4 +38,4 @@
  ┗ 📄README.md
  ```
 
- **PS**: Please go to [`Agent.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/Agenda.md) to update yourselves or check others.
+ **PS**: Please go to [`Agent.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/agenda.md) to update yourselves or check others' update.
