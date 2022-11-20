@@ -1,4 +1,4 @@
-# Wi-Fi Indoor Positioning System (IPS) based on KNN Algorithm 
+<h1 align="center"> Wi-Fi Indoor Positioning System (IPS) <br/> based on KNN Algorithm </h1>
 
 ```
 📦Indoor_positioning_system
