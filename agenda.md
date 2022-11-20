@@ -1,56 +1,46 @@
-# Agenda Outline
+# Members' Agenda Outline
 
-## Group Roles:
-| Member | Role |
-| ----------- | ----------- |
-| braadams | Tidy Scripting |
-| cyrus-pdx | Visualization | 
-| jadiri28 | Documentation |
-| Sang-Buster | Positioning | 
+| Member      | Role           |
+|-------------|----------------|
+| braadams    | Tidy Scripting |
+| cyrus-pdx   | Visualization  |
+| jadiri28    | Documentation  |
+| Sang-Buster | Positioning    |
+
+---
 
 ## Project Agenda:
 - [x] Establish group member roles.
 - [ ] Establish timeline.
 - [ ] Review updated project.
 
+---
 
-## Member Agenda:
-### braadams:
-- [ ] Create R script for tidying any data set. 
-- [ ] b.
+braadams:
+- [ ] a. Create R script for tidying any data set. (🛠️ in progress...)
+- [ ] b. Complete Trilateration technique
 - [ ] c.
 
-##### Files Currently Editing
-- `grid.Rmd`
-Agenda/Role
-: Develop methodology for tidying any data set to desired data frame.
+---
 
-### cyrus-pdx:
+cyrus-pdx:
 - [x] create base grid
 - [x] find distances from AP's to receiver locations
-- [ ] plot `rssi` values over the base grid
+- [ ] plot `rssi` values over the base grid (🛠️ in progress...)
 - [ ] plot `c` values over the base grid
 - [ ] create interactive plot to show combined data over the base grid
 - [ ] use `c`, `mac_ap`, and `rssi` value to create methodology for IPS.
 
-##### Files Currently Editing
-Agenda/Role
-: I have created a base grid with colorized coordinate data that can be found in the etc directory. My goal is to plot an interactive overlay of the signal strengths for each `offline` coordinate grouped by the broadcasting access point. To accomplish this I used the Pythagorean theorem to create a new variable called `c` to map `rssi` values to distance to eventually understand accuracy when predicting location. 
+---
 
-### jadiri28:
-- [ ] Complete introduction paragraph
+jadiri28:
+- [ ] Complete introduction paragraph (🛠️ in progress...)
 - [ ] b.
 - [ ] c.
 
-##### Files Currently Editing
-Agenda/Role
-: Begin working on report introduction paragraph.
+---
 
-### Sang-Buster:
-- [ ] a.
-- [ ] b.
-- [ ] c.
-
-##### Files Currently Editing
-Agenda/Role
-: Developing KNN methodology for indoor positioning. 
+Sang-Buster:
+- [x] a. Complete data tidyng
+- [ ] b. Complete KNN algorithm (🛠️ in progress...)
+- [ ] c. 

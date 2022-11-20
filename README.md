@@ -1,19 +1,41 @@
-# Indoor WiFi fingerprinting/ trilateration from a provided dataset. 
-  Files:
-  - agenda.md:                    Check what eveyone's up to
-  - etc:                          contains supplementary information
-    - accessPointLocations.txt    ap locations mac and spatial info
-    - annotated_map.png           updated floorplan
-    - base_grid.png               Spatial layout
-    - floorplan.jpg               layout of data collection area
-  - grid.Rmd                      spatial evaluation of data
-  - IPS.qmd                       new version of .Rmd to tidy raw data
-  - raw_data:                     contains original data files
-    - offline.final.trace.txt     original offline data 
-    - online.final.trace.txt      original online data
-  - scripts:                      contains script files for processing the data
-    - tidying_raw_data            script to tidy raw off/online data
-  - tidy_data:                    tidy off/online data
-    - tidy_offline.Rmd            Tidy offline data
-    - tidy_online.Rmd             Tidy online data
-  - trilat.Rmd                    create location system
+<h1 align="center"> Wi-Fi Indoor Positioning System (IPS) <br/> based on <br/>KNN Algorithm + Trilateration Technique </h1>
+
+```
+ 📦Indoor_positioning_system           
+ ┣ 📂etc                                // Supplementary materials
+ ┃ ┣ 📄annotated_map.png
+ ┃ ┣ 📄floorplan.jpg
+ ┃ ┗ 📄Overview.pdf
+ ┣ 📂src                                // Source code
+ ┃ ┣ 📂Data_Visualization                   // Data Visualization
+ ┃ ┃ ┣ 📂Grid_plot                              // Plot of APs + grids
+ ┃ ┃ ┃ ┣ 📄grid.png
+ ┃ ┃ ┃ ┣ 📄grid.Rmd
+ ┃ ┃ ┃ ┣ 📄IPS_Offline.RData
+ ┃ ┃ ┃ ┣ 📄IPS_Online.RData
+ ┃ ┃ ┃ ┣ 📄Offline_grid.png
+ ┃ ┃ ┃ ┣ 📄Online_grid.png
+ ┃ ┃ ┃ ┣ 📄Rooms.png
+ ┃ ┃ ┃ ┣ 📄Rooms_2.png
+ ┃ ┃ ┃ ┗ 📄WAP.png
+ ┃ ┃ ┗ 📂Shiny_app                              // Visualization via Shiny app
+ ┃ ┃ ┃ ┗ 📄app.R
+ ┃ ┣ 📂Method-KNN                           // KNN method
+ ┃ ┃ ┣ 📄IPS_Offline.RData
+ ┃ ┃ ┣ 📄IPS_Online.RData
+ ┃ ┃ ┗ 📄KNN.Rmd
+ ┃ ┣ 📂Method-Trilateration                 // Trilateration method
+ ┃ ┃ ┣ 📄IPS_Offline.RData
+ ┃ ┃ ┣ 📄IPS_Online.RData
+ ┃ ┃ ┗ 📄Trilateration.Rmd
+ ┃ ┣ 📂raw_data                             // Raw data
+ ┃ ┃ ┣ 📄accessPointLocations.txt
+ ┃ ┃ ┣ 📄offline.final.trace.txt
+ ┃ ┃ ┗ 📄online.final.trace.txt
+ ┃ ┗ 📄clean_data.R                         // Data tidying
+ ┣ 📄Agenda.md                          // Members' role
+ ┣ 📄LICENSE
+ ┗ 📄README.md
+ ```
+
+ **PS**: Please go to [`Agent.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/Agenda.md) to update yourselves or check others.
