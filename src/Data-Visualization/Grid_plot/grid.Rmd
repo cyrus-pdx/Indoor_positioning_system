@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tinytex)   # Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents
 library(rlang)     # Functions for Base Types and Core R and 'Tidyverse' Features
 library(rmarkdown) # Dynamic Documents for R
+library(rmdformats)
 library(knitr)
 library(tidyverse) # Load core packages:
 library(ggplot2)   # data visualization.
@@ -66,47 +67,98 @@ library(lubridate)
 ```{r message=FALSE, warning=FALSE}
 #import offline data
 offline <- read_csv("tidy_data/tidy_offline.csv")
+offline <- offline %>% rename(rec_x = posX,
+                            rec_y = posY)
 # summary(offline)
 ```
 
 ```{r message=FALSE, warning=FALSE}
 #Import online data
 online <- read_csv("tidy_data/tidy_online.csv")
+# view(online)
 # summary(online)
+online <- online %>% rename(rec_x = posX,
+                            rec_y = posY)
 ```
 
 ## Applying Pythagorean Theorem To `Offline` data
 
 ```{r}
 # I am creating new variables to apply Pythagorean theorem to plot radius 
-offline <- mutate(offline, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates 
-  mutate(offline, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates 
-  mutate(offline, c = (sqrt(a^2+b^2))) # finds distance between (x,y) points
+offline <- mutate(offline, a = (abs(rec_x-ap_x))) %>%  # creates distance between x coordinates 
+  mutate(offline, b = (abs(rec_y-ap_y))) %>% # creates distance between y coordinates 
+  mutate(offline, dist = (sqrt(a^2+b^2))) # finds distance between (x,y) points
 offline
 ```
+
+### Writing new distance data as csv
+```{r}
+# write_csv(offline, "tidy_data/new_off.csv")
+```
+
 
 ## Linear Model To Establish Significance Of Variables
 
 ```{r}
-# Setting rssi as the dependent variable because it is what varies given proximity
-rssi_lm <- lm(rssi~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
-summary(rssi_lm) # note: orientation has a p value of 0.432 making it insignificant
+# # Setting rssi as the dependent variable because it is what varies given proximity
+# rssi_lm <- lm(rssi~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
+# summary(rssi_lm) # note: orientation has a p value of 0.432 making it insignificant
 ```
 
 ```{r}
 # Setting rssi as the dependent variable because it is what varies given proximity 
-rssi_lm2 <- lm(rssi~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
-summary(rssi_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to rssi values that determine signal strength
+# rssi_lm2 <- lm(rssi~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
+# summary(rssi_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to rssi values that determine signal strength
 ```
 
 ```{r}
-fortify(rssi_lm2)
+# fortify(rssi_lm2)
 ```
 
 ### Trimming Offline Data Based On Significance 
 ```{r}
-new_off <- offline[-c(3,9,10,13,14)] # Removing unnecessary offline variables
+new_off <- offline[-c(1,2,3,6,9,10,13,14)] # Removing unnecessary offline variables
 # view(new_off)
+new_off$rssi <- as.numeric(gsub("\\-","",new_off$rssi))
+new_off
+```
+
+```{r}
+avg_off <- new_off %>% 
+  group_by(rec_x, rec_y, ap_mac) %>% 
+  mutate(avg_rssi = mean(rssi)) 
+avg_off
+```
+
+```{r}
+accuracy <- avg_off %>% mutate(accuracy = abs(rssi-avg_rssi))
+accuracy
+```
+
+```{r}
+trim_acc <- accuracy %>% distinct()
+trim_acc
+```
+
+
+```{r}
+reduced_off <- new_off %>% distinct()
+reduced_off <- as.data.frame(reduced_off)
+reduced_off
+```
+
+```{r}
+reduced <- reduced_off %>% select(-c(rssi)) %>% distinct()
+reduced
+```
+
+```{r}
+# ap_2.5_0.8 <- trim_acc %>% filter(ap_mac == "00:14:bf:b1:97:8a")
+# ap_1.0_14.0 <- trim_acc %>% filter(ap_mac == "00:14:bf:b1:97:90")
+# ap_7.5_6.3 <- trim_acc %>% filter(ap_mac == "00:0f:a3:39:e1:c0")
+# ap_33.5_9.3 <- trim_acc %>% filter(ap_mac == "00:14:bf:b1:97:8d")
+# ap_33.5_2.8 <- trim_acc %>% filter(ap_mac == "00:14:bf:b1:97:81")
+# ap_12.8_2.8 <- trim_acc %>% filter(ap_mac == "00:14:bf:3b:c7:c6")
 ```
 
 
@@ -120,18 +172,6 @@ new_off <- offline[-c(3,9,10,13,14)] # Removing unnecessary offline variables
 ```
 
 ## Spliting Offline Data By Receiver Locations
-```{r}
-new_split <- new_off %>% group_split(posX, posY) # breaking up data frame so it's easier to plot.
-new_split[1] # format to call split df when plotting
-```
-
-```{r}
-g1 <- as.data.frame.list(new_split[1])
-
-g1$timestamp <- as_datetime(g1$timestamp)
-g1
-typeof(g1)
-```
 
 # Visualization Tidying
 
@@ -140,11 +180,12 @@ typeof(g1)
 ```{r}
 # finds distinct points to plot for data visualization of online recorded points 
 on_rec_locs <- online %>% 
-  select(receiver, posX, posY) %>% 
+  select(rec_x, rec_y) %>% 
   distinct()
-#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 on_rec_locs
-plot(on_rec_locs$posX, on_rec_locs$posY) # checking plot locations
+#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
+on_rec_locs <- st_as_sf(on_rec_locs, coords = c("rec_x", "rec_y"))
+plot(on_rec_locs) # checking plot locations
 ```
 
 ## Distinct Offline Receiver Locations 
@@ -152,11 +193,12 @@ plot(on_rec_locs$posX, on_rec_locs$posY) # checking plot locations
 ```{r}
 # finds distinct points to plot for data visualization of offline recorded points 
 off_rec_locs <- offline %>% 
-  select(receiver, posX, posY) %>% 
+  select(rec_x, rec_y) %>% 
   distinct()
-#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
 off_rec_locs
-plot(off_rec_locs$posX, off_rec_locs$posY) # checking plot locations
+#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
+off_rec_locs <- st_as_sf(off_rec_locs, coords = c("rec_x", "rec_y"))
+plot(off_rec_locs) # checking plot locations
 ```
 
 ## Access Point Locations
@@ -166,9 +208,10 @@ ap_locs <- offline %>%
   select(c("ap_mac", "ap_x", "ap_y")) %>% 
   distinct() %>%  # trimming excess access point locations 
   na.omit()  # removing na values
-ap_locs
+ap_locs <- st_as_sf(ap_locs, coords = c("ap_x", "ap_y"))
+# ap_locs
 # checking results
-plot(ap_locs$"ap_x", ap_locs$"ap_y") # plotting access point locations
+# plot(ap_locs) # plotting access point locations
 ```
 
 ## Creating Floorplan
@@ -217,6 +260,27 @@ p5 <- rbind(c(27,4), c(27,6.7), c(31,6.7), c(31,4), c(27,4))
 (mpol <- st_multipolygon(list(list(p1), list(p3), list(p5))))
 
 plot(mpol) # inspecting polygon
+
+(sfc=st_sfc(mls, mpol))
+```
+```{r}
+# Creating matrices for receiver and access point locations to pass into st_multipoint function 
+# rec_points <- reduced_off %>% select(rec_x, rec_y) %>% as.matrix()
+# ap_points <- reduced_off %>% select(ap_x, ap_y) %>% as.matrix() 
+# 
+# # Creating the multipoint sf objects
+# rec_mp <- st_multipoint(rec_points, dim = "XY")
+# ap_mp <- st_multipoint(ap_points, dim = "XY")
+# 
+# # Creating multilinestring from multipoints
+# # dist_mls <- st_multilinestring(list(rbind(rec_points, ap_points)))
+# # dist_mls
+# # Create empty example plot
+# plot()
+# 
+# # Draw one line
+# segments(x0 = reduced_off$rec_x, y0 = reduced_off$rec_y, x1 = reduced_off$ap_x, y1 = reduced_off$ap_y, col = "darkgreen")
+
 ```
 
 # Combining Visualizations & Plotting
@@ -225,9 +289,7 @@ plot(mpol) # inspecting polygon
 ```{r}
 base_grid <- ggplot() +
   # inserting floor plan outline
-  geom_sf(data = mls) + 
-  # inserting room polygons
-  geom_sf(data = mpol) +
+  geom_sf(data = sfc) +
   # inserting ap locations
   geom_point(data = ap_locs, aes(ap_x, ap_y, colour=ap_mac),
 
@@ -240,11 +302,13 @@ base_grid <- ggplot() +
              alpha = .8,
              size = 1)+
   # inserting online receiver locations
-  geom_point(data = on_rec_locs, aes(posX,posY),
+  geom_point(data = on_rec_locs, aes(posX,posYes()
              color = "blue",
              alpha = .3,
              size = 1) +
-   geom_circle(aes(x0 = ap_x, y0 = ap_y, r = c, fill = rssi), alpha = 0.01, data = g1)+
+
+  xlim(-5, 35)+
+  ylim(-5, 15)+
   labs(
     title = "Base Floorplan",
     subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
@@ -256,6 +320,55 @@ base_grid <- ggplot() +
   )
 base_grid
 ```
+
+```{r}
+ggplot() +
+  # inserting floor plan outline
+  geom_sf(data = sfc) +
+  # inserting ap locations
+  geom_sf(data = ap_locs, aes(group = ap_mac, fill = as.factor(ap_mac)))+
+  scale_fill_gradient(
+  low = "#F8F9C7",
+  high = "#F67B6B",
+  space = "Lab",
+  guide = "colourbar",
+  aesthetics = "fill"
+)+
+  # inserting offline receiver locations
+  geom_sf(data = off_rec_locs, color = "grey")+
+  # inserting online receiver locations
+  geom_sf(data = on_rec_locs, color = "blue", alpha = 0.3) +
+  geom_segment(data = trim_acc, aes(x = ap_x[1],
+                                    y = ap_y[1],
+                                    xend = rec_x[1],
+                                    yend = rec_y[1],
+               colour = avg_rssi
+               #linewidth = 
+                 ))+
+  xlim(-5, 35)+
+  ylim(-5, 15)+
+  labs(
+    title = "Base Floorplan",
+    subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
+    # caption = "",
+    # tag = "",
+    x = "Roughly 35 meters",
+    y = "Roughly 18 meters",
+    # colour = ""
+  )
+```
+```{r}
+base_grid + 
+  geom_sf(data=dist_mls)
+    # geom_circle(aes(x0 = ap_x, y0 = ap_y, r = dist, fill = avg_rssi), alpha = 0.01, data = ap_1.0_14.0)
+  
+```
+```{r}
+base_grid +
+  xlim(-5, 35)+
+  ylim(-5, 15)
+```
+
 
 ```{r}
 baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
@@ -272,5 +385,36 @@ baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
 ```
 
 
+
+```{r}
+g11 <- g1 %>% select(posX, posY, ap_mac, rssi, ap_x, ap_y, c) %>% filter(ap_mac=="00:14:bf:b1:97:90") %>%  distinct()
+```
+
+
+```{r}
+theme_set(theme_bw())  # pre-set the bw theme.
+
+# Scatterplot
+gg <- ggplot(g1, aes(x=ap_x, y=ap_y, fill=ap_mac)) + 
+  geom_point(aes(col=rssi, size=c)) + 
+  geom_smooth(method="loess", se=F) + 
+  labs(subtitle="Area Vs Population", 
+       y="Population", 
+       x="Area", 
+       title="Scatterplot", 
+       caption = "Source: midwest")
+
+plot(gg)
+```
+```{r}
+# Scatterplot
+theme_set(theme_bw())  # pre-set the bw theme.
+g <- ggplot(g1, aes(ap_x, ap_y)) + 
+  labs(subtitle="mpg: Displacement vs City Mileage",
+       title="Bubble chart")
+
+g + geom_jitter(aes(col=rssi, size=c)) + 
+  geom_smooth(aes(col=rssi), method="lm", se=F)
+```
 
 

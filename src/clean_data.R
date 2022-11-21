@@ -167,7 +167,12 @@ IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39
                                             ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
                                                    ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
                                                           ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
-                                                                 ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA)))))))
+                                                                 ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) %>% 
+  # Creates new variables to apply Pythagorean theorem to plot radius 
+  mutate(IPS_offline_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates 
+  mutate(IPS_offline_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates 
+  mutate(IPS_offline_Data, dist = (sqrt(a^2+b^2))) %>%  # finds distance between (x,y) points
+  select(-c(a,b)) #removing a & b variables
 
 # Adding (x,y) access point coordinates to online
 IPS_online_Data <- mutate(IPS_online_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
@@ -181,7 +186,13 @@ IPS_online_Data <- mutate(IPS_online_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e
                                            ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
                                                   ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
                                                          ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
-                                                                ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA)))))))
+                                                                ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) %>% 
+  # Creates new variables to apply Pythagorean theorem to plot radius 
+  mutate(IPS_online_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates 
+  mutate(IPS_online_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates 
+  mutate(IPS_online_Data, dist = (sqrt(a^2+b^2))) %>%  # finds distance between (x,y) points
+  select(-c(a,b)) #removing a & b variables
+
 
 # Clear unneeded objects
 remove(offlines)
@@ -200,4 +211,3 @@ remove(offline.signalStat)
 
 save(IPS_offline_Data, file = "IPS_Offline.RData")
 save(IPS_online_Data, file = "IPS_Online.RData")
-
