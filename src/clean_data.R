@@ -162,27 +162,7 @@ IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 IPS_offline_Data$frequency <- NULL
 IPS_online_Data$frequency <- NULL
 
-# Creating a vector for the desired access points to filter out unwanted records
-# ap_list <- c("00:0f:a3:39:e1:c0",
-#              "00:14:bf:b1:97:8a",
-#              "00:14:bf:3b:c7:c6",
-#              "00:14:bf:b1:97:90",
-#              "00:14:bf:b1:97:8d",
-#              "00:14:bf:b1:97:81")
-
-# Paste all combos of x and y
-IPS_offline_Data$posXY <- paste(IPS_offline_Data$posX, IPS_offline_Data$posY, sep=", ")
-IPS_online_Data$posXY <- paste(IPS_online_Data$posX, IPS_online_Data$posY, sep=", ")
-
-# removes unwanted records of access points and ad-hoc devices
-IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% ap_list, ]
-# reinspecting the length or amount of records in the dataframe
-# summary(IPS_offline_Data) # note that the length changed from 1,181,628 to 769,332 records
-
-# removes unwanted records of access points and ad-hoc devices
-IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% ap_list, ]
-# reinspecting the length or amount of records in the dataframe
-# summary(IPS_online_Data) # note that the length changed from 53,303 to 34,778 records
+summary(IPS_offline_Data)
 
 # Adding (x,y) access point coordinates to Offline
 IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
