@@ -107,6 +107,7 @@ remove(WD)
 # Load txt files
 offline_data_txt <- readLines("raw_data/offline.final.trace.txt")
 online_data_txt  <- readLines("raw_data/online.final.trace.txt")
+AP_Loc           <- read.table("raw_data/accessPointLocations.txt", header=T)
 
 # To split the text into rows, then piece together column names and rows of data
 processLine <- function(x) {
@@ -140,6 +141,13 @@ names(IPS_online_Data) <- c("timeStamp", "scanedMAC", "posX", "posY", "posZ", "o
 ```{r Step_2.rawData_DF_adjustment}
 # Take only access point = 3, device in Ad-hoc mode = 1
 IPS_offline_Data <- IPS_offline_Data %>% filter(type=='3')
+IPS_offline_Data$type <- NULL
+IPS_online_Data <- IPS_online_Data %>% filter(type=='3')
+IPS_online_Data$type <- NULL
+
+#keep the top 7 Macs with over 10k obs
+goodMacs <- names(sort(table(IPS_offline_Data$MAC), decreasing=T))[1:7]
+IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% goodMacs,]
 
 # Data coercion chr -> numeric
 varList <- c("timeStamp", "posX", "posY", "posZ", "orientation", "RSSI")
@@ -191,7 +199,6 @@ IPS_offline_Data$direction <- Ori.to.Direction(IPS_offline_Data$orientation)
 IPS_online_Data$direction <- Ori.to.Direction(IPS_online_Data$orientation) 
 
 # Number of MAC addreses = number of frequency channels, should be 6 MAC for 6 WAP, with 6 Freq
-AP_Loc <- read.table("raw_data/accessPointLocations.txt", header=T)
 IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% AP_Loc$Macs,]
 IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 
@@ -203,10 +210,26 @@ IPS_online_Data$frequency <- NULL
 IPS_offline_Data$posXY <- paste(IPS_offline_Data$posX, IPS_offline_Data$posY, sep=", ") 
 IPS_online_Data$posXY <- paste(IPS_online_Data$posX, IPS_online_Data$posY, sep=", ") 
 
+# Clear unneeded objects
+remove(offlines)
+remove(onlines)
+remove(offline_tmp)
+remove(online_tmp)
+remove(offline_data_txt)
+remove(online_data_txt)
+remove(varList)
+remove(goodMacs)
+```
+
+<!-- -------------------------------------------  -->
+<!-- -----------Find Training Data Set ---------  -->
+<!-- -------------------------------------------  -->
+
+```{r}
 # Create a list of dfs for every combo of posXY, angle, and AP
 Offline_RSSI.statCompute <- with(IPS_offline_Data, by(IPS_offline_Data, list(posXY, angle, MAC), function(x) x))
 
-#Get signal stats on each df
+# Get signal stats on each df
 offline.signalStat <- lapply(Offline_RSSI.statCompute,
                         function (oneLoc.Angle.AP) {
                           stats = oneLoc.Angle.AP[1, ]
@@ -217,23 +240,65 @@ offline.signalStat <- lapply(Offline_RSSI.statCompute,
                           stats
                         })
 
-IPS_offline_Data <- do.call("rbind", offline.signalStat)
+IPS_trainingData <- do.call("rbind", offline.signalStat)
+
+# Left join apX and apY
+AP_Loc <- AP_Loc %>% rename(MAC=Macs)
+
+IPS_trainingData <- left_join(IPS_trainingData, AP_Loc, by="MAC") 
+IPS_trainingData <- IPS_trainingData %>% rename(apX=x, apY=y)
+
+IPS_online_Data <- left_join(IPS_online_Data, AP_Loc, by="MAC") 
+IPS_online_Data <- IPS_online_Data %>% rename(apX=x, apY=y)
+
+# Calculate Euclidean distances from the device to APs
+diffs <- IPS_trainingData[ , c("posX", "posY")] - IPS_trainingData[ , c("apX", "apY")]
+IPS_trainingData$dist <- sqrt(diffs[,1]^2 + diffs[,2]^2)
 
 # Clear unneeded objects
-remove(offlines)
-remove(onlines)
-remove(offline_tmp)
-remove(online_tmp)
-remove(offline_data_txt)
-remove(online_data_txt)
-remove(varList)
 remove(Offline_RSSI.statCompute)
 remove(offline.signalStat)
+remove(diffs)
 ```
+
+<!-- -------------------------------------------  -->
+<!-- -----------Find Testing Data Set ----------  -->
+<!-- -------------------------------------------  -->
+
+
+```{r}
+# Creates a 6 columns of signal strengths with respect to each APs
+keepVars <- c("posXY", "orientation", "angle", "direction")
+online_RSSI.statCompute <- with(IPS_online_Data,
+                                by(IPS_online_Data, list(posXY),
+                                   function(x) {
+                                     stats = x[1, keepVars]
+                                     avgSS = tapply(x$RSSI, x$MAC, mean)
+                                     y = matrix(avgSS, nrow=1, ncol=6,
+                                                dimnames = list(stats$posXY, names(avgSS)))
+                                     cbind(stats, y)
+                                   }))
+IPS_testingData <- do.call("rbind", online_RSSI.statCompute)
+
+
+# Clear unneeded objects
+remove(online_RSSI.statCompute)
+remove(keepVars)
+```
+
+```{r eval=FALSE}
+> length(unique(IPS_online_Data$posXY))
+[1] 60
+> length(unique(IPS_offline_Data$posXY))
+[1] 166
+```
+In deed, we have 60 locations and 166 locations observed in offline and online data sets.
 
 ## Data Saving
 
 ```{r Step_3.Data_Saving}
 save(IPS_offline_Data, file = "IPS_offline.RData")
+save(IPS_trainingData, file = "IPS_trainingData.RData")
 save(IPS_online_Data, file = "IPS_online.RData")
+save(IPS_testingData, file = "IPS_testingData.RData")
 ```
