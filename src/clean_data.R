@@ -38,9 +38,9 @@ library(plotly)     # User interactive plots
 
 set.seed(27)        # make random results reproducible
 
-WD <- getwd()       # pwd
-setwd(WD)           # cd WD
-remove(WD)          # del WD
+# WD <- getwd()       # pwd
+# setwd(WD)           # cd WD
+# remove(WD)          # del WD
 
 #--------------------------------------------------------#
 #------------------Step 1: Data Cleaning-----------------#
@@ -154,6 +154,35 @@ offline.signalStat <- lapply(Offline_RSSI.statCompute,
                                stats
                              })
 IPS_offline_Data <- do.call("rbind", offline.signalStat)
+
+# Adding (x,y) access point coordinates to Offline
+IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
+                                                   ifelse(MAC %in% "00:14:bf:b1:97:8a", 2.5,
+                                                          ifelse(MAC %in% "00:14:bf:3b:c7:c6", 12.8,
+                                                                 ifelse(MAC %in% "00:14:bf:b1:97:90", 1.0,
+                                                                        ifelse(MAC %in% "00:14:bf:b1:97:8d", 33.5,
+                                                                               ifelse(MAC %in% "00:14:bf:b1:97:81", 33.5, NA))))))) %>% 
+  mutate(IPS_offline_Data, ap_y = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 6.3,
+                                     ifelse(MAC %in% "00:14:bf:b1:97:8a", -0.8,
+                                            ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
+                                                   ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
+                                                          ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
+                                                                 ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA)))))))
+
+# Adding (x,y) access point coordinates to online
+IPS_online_Data <- mutate(IPS_online_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
+                                                 ifelse(MAC %in% "00:14:bf:b1:97:8a", 2.5,
+                                                        ifelse(MAC %in% "00:14:bf:3b:c7:c6", 12.8,
+                                                               ifelse(MAC %in% "00:14:bf:b1:97:90", 1.0,
+                                                                      ifelse(MAC %in% "00:14:bf:b1:97:8d", 33.5,
+                                                                             ifelse(MAC %in% "00:14:bf:b1:97:81", 33.5, NA))))))) %>% 
+  mutate(IPS_online_Data, ap_y = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 6.3,
+                                    ifelse(MAC %in% "00:14:bf:b1:97:8a", -0.8,
+                                           ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
+                                                  ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
+                                                         ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
+                                                                ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA)))))))
+
 # Clear unneeded objects
 remove(offlines)
 remove(onlines)
