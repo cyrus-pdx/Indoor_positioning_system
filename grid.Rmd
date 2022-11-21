@@ -63,46 +63,75 @@ library(lubridate)
 ```
 
 # Import & Tidying 
-```{r}
-load("~/Projects/Indoor_positioning_system/src/IPS_Offline.RData")
-load("~/Projects/Indoor_positioning_system/src/IPS_Online.RData")
+
+```{r message=FALSE, warning=FALSE}
+#import offline data
+offline <- read_csv("tidy_data/tidy_offline.csv")
+offline <- offline %>% rename(rec_x = posX,
+                            rec_y = posY)
+# summary(offline)
 ```
+
+```{r message=FALSE, warning=FALSE}
+#Import online data
+online <- read_csv("tidy_data/tidy_online.csv")
+# view(online)
+# summary(online)
+online <- online %>% rename(rec_x = posX,
+                            rec_y = posY)
+```
+
+## Applying Pythagorean Theorem To `Offline` data
+
+```{r}
+# I am creating new variables to apply Pythagorean theorem to plot radius 
+offline <- mutate(offline, a = (abs(rec_x-ap_x))) %>%  # creates distance between x coordinates 
+  mutate(offline, b = (abs(rec_y-ap_y))) %>% # creates distance between y coordinates 
+  mutate(offline, dist = (sqrt(a^2+b^2))) # finds distance between (x,y) points
+offline
+```
+
+### Writing new distance data as csv
+```{r}
+# write_csv(offline, "tidy_data/new_off.csv")
+```
+
 
 ## Linear Model To Establish Significance Of Variables
 
 ```{r}
-# # Setting RSSI as the dependent variable because it is what varies given proximity
-# RSSI_lm <- lm(RSSI~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
-# summary(RSSI_lm) # note: orientation has a p value of 0.432 making it insignificant
+# # Setting rssi as the dependent variable because it is what varies given proximity
+# rssi_lm <- lm(rssi~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
+# summary(rssi_lm) # note: orientation has a p value of 0.432 making it insignificant
 ```
 
 ```{r}
-# Setting RSSI as the dependent variable because it is what varies given proximity 
-# RSSI_lm2 <- lm(RSSI~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
-# summary(RSSI_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to RSSI values that determine signal strength
+# Setting rssi as the dependent variable because it is what varies given proximity 
+# rssi_lm2 <- lm(rssi~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
+# summary(rssi_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to rssi values that determine signal strength
 ```
 
 ```{r}
-IPS_offline_Data
+# fortify(rssi_lm2)
 ```
 
 ### Trimming Offline Data Based On Significance 
 ```{r}
-new_off <- IPS_offline_Data[-c(1,4,7:14)] # Removing unnecessary offline variables
-rownames(new_off)<-NULL
-new_off$RSSI <- as.numeric(gsub("\\-","",new_off$RSSI))
+new_off <- offline[-c(1,2,3,6,9,10,13,14)] # Removing unnecessary offline variables
+# view(new_off)
+new_off$rssi <- as.numeric(gsub("\\-","",new_off$rssi))
 new_off
 ```
 
 ```{r}
 avg_off <- new_off %>% 
   group_by(rec_x, rec_y, ap_mac) %>% 
-  mutate(avg_RSSI = mean(RSSI)) 
+  mutate(avg_rssi = mean(rssi)) 
 avg_off
 ```
 
 ```{r}
-accuracy <- avg_off %>% mutate(accuracy = abs(RSSI-avg_RSSI))
+accuracy <- avg_off %>% mutate(accuracy = abs(rssi-avg_rssi))
 accuracy
 ```
 
@@ -119,7 +148,7 @@ reduced_off
 ```
 
 ```{r}
-reduced <- reduced_off %>% select(-c(RSSI)) %>% distinct()
+reduced <- reduced_off %>% select(-c(rssi)) %>% distinct()
 reduced
 ```
 
@@ -313,7 +342,7 @@ ggplot() +
                                     y = ap_y[1],
                                     xend = rec_x[1],
                                     yend = rec_y[1],
-               colour = avg_RSSI
+               colour = avg_rssi
                #linewidth = 
                  ))+
   xlim(-5, 35)+
@@ -331,7 +360,7 @@ ggplot() +
 ```{r}
 base_grid + 
   geom_sf(data=dist_mls)
-    # geom_circle(aes(x0 = ap_x, y0 = ap_y, r = dist, fill = avg_RSSI), alpha = 0.01, data = ap_1.0_14.0)
+    # geom_circle(aes(x0 = ap_x, y0 = ap_y, r = dist, fill = avg_rssi), alpha = 0.01, data = ap_1.0_14.0)
   
 ```
 ```{r}
@@ -358,7 +387,7 @@ baseFloorplan <- print(base_grid + labs(colour = "Acess Points"))
 
 
 ```{r}
-g11 <- g1 %>% select(posX, posY, ap_mac, RSSI, ap_x, ap_y, c) %>% filter(ap_mac=="00:14:bf:b1:97:90") %>%  distinct()
+g11 <- g1 %>% select(posX, posY, ap_mac, rssi, ap_x, ap_y, c) %>% filter(ap_mac=="00:14:bf:b1:97:90") %>%  distinct()
 ```
 
 
@@ -367,7 +396,7 @@ theme_set(theme_bw())  # pre-set the bw theme.
 
 # Scatterplot
 gg <- ggplot(g1, aes(x=ap_x, y=ap_y, fill=ap_mac)) + 
-  geom_point(aes(col=RSSI, size=c)) + 
+  geom_point(aes(col=rssi, size=c)) + 
   geom_smooth(method="loess", se=F) + 
   labs(subtitle="Area Vs Population", 
        y="Population", 
@@ -384,8 +413,8 @@ g <- ggplot(g1, aes(ap_x, ap_y)) +
   labs(subtitle="mpg: Displacement vs City Mileage",
        title="Bubble chart")
 
-g + geom_jitter(aes(col=RSSI, size=c)) + 
-  geom_smooth(aes(col=RSSI), method="lm", se=F)
+g + geom_jitter(aes(col=rssi, size=c)) + 
+  geom_smooth(aes(col=rssi), method="lm", se=F)
 ```
 
 
