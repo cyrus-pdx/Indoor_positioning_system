@@ -95,10 +95,10 @@ IPS_offline_Data$timeStamp <- as.POSIXct(IPS_offline_Data$time, tz="UTC", origin
 IPS_online_Data$timeStamp <- IPS_online_Data$timeStamp/1000 
 IPS_online_Data$timeStamp <- as.POSIXct(IPS_online_Data$time, tz="UTC", origin = "1970-01-01")
 
-# length(unique(IPS_offline_Data$scanedMAC))  #Output: 1
-# length(unique(IPS_offline_Data$posZ))       #Output: 1
-# length(unique(IPS_online_Data$scanedMAC))   #Output: 1
-# length(unique(IPS_online_Data$posZ))        #Output: 1
+length(unique(IPS_offline_Data$scanedMAC))  #Output: 1
+length(unique(IPS_offline_Data$posZ))       #Output: 1
+length(unique(IPS_online_Data$scanedMAC))   #Output: 1
+length(unique(IPS_online_Data$posZ))        #Output: 1
 
 #Since the scanedMAC and posZ are constant, they can be dropped
 IPS_offline_Data$scanedMAC <- NULL
@@ -211,3 +211,4 @@ remove(offline.signalStat)
 
 save(IPS_offline_Data, file = "IPS_Offline.RData")
 save(IPS_online_Data, file = "IPS_Online.RData")
+# write_csv(IPS_offline_Data, file = "IPS_Offline.csv")
