@@ -265,7 +265,6 @@ remove(diffs)
 <!-- -----------Find Testing Data Set ----------  -->
 <!-- -------------------------------------------  -->
 
-
 ```{r}
 # Creates a 6 columns of signal strengths with respect to each APs
 keepVars <- c("posXY", "orientation", "angle", "direction")
