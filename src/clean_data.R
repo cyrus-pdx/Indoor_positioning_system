@@ -81,7 +81,7 @@ names(IPS_online_Data) <- c("timestamp", "scanedMAC", "posX", "posY", "posZ", "o
 #--------------------------------------------------------#
 
 # Data coercion chr -> numeric
-varList <- c("timestamp", "posX", "posY", "posZ", "orientation", "RSSI")
+varList <- c("timestamp", "posX", "posY", "posZ", "orientation", "RSSI", "frequency")
 IPS_offline_Data[varList] <- lapply(IPS_offline_Data[varList], as.numeric)
 IPS_online_Data[varList] <- lapply(IPS_online_Data[varList], as.numeric)
 
@@ -147,10 +147,10 @@ remove(offline_data_txt)
 remove(online_data_txt)
 
 # Inspecting the length or amount of records in the dataframe
-summary(IPS_offline_Data) # note that the length is 1,181,628 records
-
-# Inspecting the length or amount of records in the dataframe
-summary(IPS_online_Data) # note that the length is 53,303 records
+# summary(IPS_offline_Data) # note that the length is 1,181,628 records
+# 
+# # Inspecting the length or amount of records in the dataframe
+# summary(IPS_online_Data) # note that the length is 53,303 records
 
 
 # Number of MAC addreses = number of frequency channels, should be 6 MAC for 6 WAP, with 6 Freq
@@ -159,10 +159,14 @@ IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% AP_Loc$Macs,]
 IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 
 # Since there is a 1:1 relationship between Macs and frequencies, drop freq channel
-IPS_offline_Data$frequency <- NULL
-IPS_online_Data$frequency <- NULL
+IPS_offline_Data$frequency <- IPS_offline_Data$frequency *10^(-9)
+IPS_online_Data$frequency <- IPS_online_Data$frequency *10^(-9)
 
-summary(IPS_offline_Data)
+# Paste all combos of x and y
+IPS_offline_Data$posXY <- paste(IPS_offline_Data$posX, IPS_offline_Data$posY, sep=", ") 
+IPS_online_Data$posXY <- paste(IPS_online_Data$posX, IPS_online_Data$posY, sep=", ") 
+
+# summary(IPS_offline_Data)
 
 # Adding (x,y) access point coordinates to Offline
 IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
@@ -195,12 +199,12 @@ IPS_online_Data <- mutate(IPS_online_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e
                                                ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
                                                       ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
                                                              ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
-                                                                    ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) %>%
+                                                                    ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) #%>%
   # Creates new variables to apply Pythagorean theorem to plot radius
-  mutate(IPS_online_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates
-  mutate(IPS_online_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates
-  mutate(IPS_online_Data, dist = (sqrt(a^2+b^2))) %>%  # finds distance between (x,y) points
-  select(-c(a,b)) #removing a & b variables
+  # mutate(IPS_online_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates
+  # mutate(IPS_online_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates
+  # mutate(IPS_online_Data, dist = (sqrt(a^2+b^2))) %>%  # finds distance between (x,y) points
+  # select(-c(a,b)) #removing a & b variables
 
 #--------------------------------------------------------#
 #------------------Step 3: Data Saving-------------------#

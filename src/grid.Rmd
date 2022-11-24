@@ -1,0 +1,506 @@
+---
+title: "Offline Distances"
+author: "Cyrus Cravens"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: chaos
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(tinytex)   # Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents
+library(rlang)     # Functions for Base Types and Core R and 'Tidyverse' Features
+library(rmarkdown) # Dynamic Documents for R
+library(rmdformats)
+library(knitr)
+library(tidyverse) # Load core packages:
+library(ggplot2)   # data visualization.
+library(dplyr)     # data manipulation.
+library(tidyr)     # data tidying.
+library(readr)     # data import.
+library(purrr)     # functional programming.
+library(tibble)    # tibbles, a modern re-imagining of data frames.
+library(stringr)   # strings.
+library(forcats)   # factors.
+library(lubridate) # date/times.
+library(readr)     # reading .csv, .tsv, and .fwf files.
+library(readxl)    # reading .xls, and .xlxs files.
+library(feather)   # sharing with Python and other languages.
+library(haven)     # SPSS, SAS and Stata files.
+library(httr)      # web apis.
+library(jsonlite)   # JSON.
+library(rvest)     # web scraping.
+library(xml2)      # XML.
+library(modelr)    # modelling within a pipeline
+library(broom)     # turning models into tidy data
+library(hms)       # times.
+library(magrittr)  # Pipeline operator
+library(lobstr)    # Visualizing abstract syntax trees, stack trees, and object sizes
+library(pander)    # Exporting/converting complex pandoc documents, EX: df to Pandoc table
+library(ggforce)   # More plot functions on top of ggplot2
+library(ggpubr)    # Automatically add p-values and significance levels  plots.
+library(sf)        # Geo-spatial vector manipulation: points, lines, polygons
+library(ff)
+library(ldat)
+library(rio)
+library(jsonlite)
+library(reader)
+library(qdapRegex)
+library(sp)
+library(lubridate)
+library(lsa)
+```
+
+```{r}
+# Set working directory as needed
+#setwd("")
+```
+
+# Import & Tidying 
+```{r}
+load("~/Projects/IPS/src/IPS_offline.RData")
+load("~/Projects/IPS/src/IPS_online.RData")
+```
+
+## Linear Model To Establish Significance Of Variables
+
+```{r}
+# # Setting RSSI as the dependent variable because it is what varies given proximity
+# RSSI_lm <- lm(RSSI~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
+# summary(RSSI_lm) # note: orientation has a p value of 0.432 making it insignificant
+```
+
+```{r}
+# Setting RSSI as the dependent variable because it is what varies given proximity 
+# RSSI_lm2 <- lm(RSSI~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
+# summary(RSSI_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to RSSI values that determine signal strength
+```
+
+```{r}
+IPS_offline_Data
+```
+
+```{r}
+IPS_online_Data
+```
+
+```{r}
+max(IPS_offline_Data$RSSI)-IPS_offline_Data$RSSI[1]
+```
+```{r}
+magnitude <- function(a,b){
+  return(sqrt(a^2+b^2))
+}
+
+euclidean <- function(a,b){
+  return(abs(a-b))
+}
+
+sim_euc <- function(a,b){
+  return(10^(-))
+}
+```
+
+
+### Trimming Offline Data Based On Significance 
+```{r}
+training <- function(x){
+  trimmed <- x[-c(1,4,8:10)] %>%  # Removing unnecessary offline variables
+    mutate(diffMAX = (max(RSSI)-RSSI)) %>% 
+    group_by(posX, posY, MAC) %>% 
+    mutate(avg_RSSI = mean(RSSI)) %>% 
+    mutate(avg_diffMAX = mean(diffMAX)) %>%
+    mutate(rp_mag = magnitude(posX, posY)) %>% 
+    mutate(ap_mag = magnitude(ap_x,ap_y)) %>% 
+    mutate(rp_ap_mag = euclidean(rp_mag, ap_mag))
+    # mutate(sd_RSSI = sd(RSSI)) %>%
+    # mutate(var_RSSI = var(RSSI))
+  rownames(trimmed)<-NULL
+  return(trimmed)
+}
+
+testing <- function(x){
+  no_locs <- x[-c(1:4,8:10)] %>% 
+    mutate(diffMAX = (max(RSSI)-RSSI)) %>% 
+    group_by(MAC) %>%
+    distinct()
+  rownames(no_locs)<-NULL
+  return(no_locs)
+}
+
+```
+
+```{r}
+avg_off <- training(x=IPS_offline_Data)
+avg_off 
+```
+
+
+```{r}
+cos_mat <- as.matrix(avg_off$rp_mag) 
+cos_mat[cos_mat(2] = avg_off$ap_mag
+cos_mat
+```
+
+
+```{r}
+ggplot(data = avg_off, aes(dist, RSSI, group=posXY, colour = MAC)) +
+  # geom_line()
+  geom_boxplot()
+```
+
+
+```{r}
+temp <- mutate(avg_off, calc_dist = round(10^(diffMAX-32.44-20 * log10(frequency)/20), digits = 3)) 
+temp
+```
+
+
+```{r}
+avg_on <- testing(x=IPS_offline_Data)
+avg_on
+```
+
+
+```{r}
+summary(avg_on)
+summary(avg_off)
+```
+
+
+```{r}
+fingerprints <- function(x){
+  reduced <- x %>% select(-c(RSSI, diffMAX)) %>% distinct()
+  return(reduced)
+}
+```
+
+```{r}
+off_fp <- fingerprints(avg_off)
+on_fp <- avg_on %>% group_by(MAC) %>% distinct()
+
+off_fp
+```
+
+```{r}
+lmod <- lm(avg_RSSI ~ dist,data = off_fp)
+summary(lmod)
+```
+
+
+```{r}
+off_fp %>%                                        # Specify data frame
+  group_by(posXY) %>%                         # Specify group indicator
+  summarise_at(vars(avg_RSSI),              # Specify column
+               list(name = mean))               # Specify function
+
+# aggregate(x = off_fp$posXY,                # Specify data column
+#           by = list(off_fp$avg_RSSI),              # Specify group indicator
+#           FUN = mean)                           # Specify function (i.e. mean)
+# mutate(off_fp, var = var())
+```
+
+
+```{r}
+ggplot(data= off_fp)+
+  geom_point(aes(dist, avg_RSSI, group=posXY, colour=MAC ))
+```
+
+
+```{r}
+off_fp
+```
+
+```{r}
+avg_off_split <- avg_off %>%  group_split(posX, posY)
+avg_off_split[1]
+```
+```{r}
+avg_off_split[2]
+```
+
+
+```{r}
+avg_off %>% select(avg_RSSI, sd_RSSI) %>% select(-c(posX, posY)) %>%  distinct()
+```
+
+
+```{r}
+# off_stats <- reduced_off %>% group_by(posX, posY, MAC) %>% 
+#   mutate(avg_RSSI = mean(RSSI)) %>%
+#   mutate(error_RSSI = abs(RSSI-avg_RSSI)) %>% 
+#   mutate(sd_RSSI = sd(RSSI))
+# off_stats
+```
+
+```{r}
+#
+```
+
+
+```{r}
+reduced_off <- new_off %>% distinct()
+reduced_off <- as.data.frame(reduced_off)
+reduced_off
+```
+
+```{r}
+reduced_off %>% select(-c(RSSI)) %>% distinct()
+```
+
+```{r}
+# ap_2.5_0.8 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:8a")
+# ap_1.0_14.0 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:90")
+# ap_7.5_6.3 <- trim_acc %>% filter(MAC == "00:0f:a3:39:e1:c0")
+# ap_33.5_9.3 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:8d")
+# ap_33.5_2.8 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:81")
+# ap_12.8_2.8 <- trim_acc %>% filter(MAC == "00:14:bf:3b:c7:c6")
+```
+
+
+```{r eval=FALSE, include=FALSE}
+# ap_locs # checking access point locations df
+# c_max <- setNames(aggregate(new_off$c, by = list(new_off$MAC), max), c("MAC", "max_dist")) # finding max distance per access point
+# c_min <- setNames(aggregate(new_off$c, by = list(new_off$MAC), min), c("MAC", "min_dist")) # finding the minimum distance from access point to offline (x,y) coordinate
+# ap_dist <- merge(ap_locs, c_max, by="MAC") # combining c_max df to ap_dist df
+# ap_dist <- merge(ap_dist, c_min, by="MAC") # combining c_min df to ap_dist df
+# ap_dist
+```
+
+## Spliting Offline Data By Receiver Locations
+
+# Visualization Tidying
+
+## Distinct Online Receiver Locations 
+
+```{r}
+# finds distinct points to plot for data visualization of online recorded points 
+on_rec_locs <- IPS_online_Data %>% 
+  select(posX, posY) %>% 
+  distinct()
+on_rec_locs
+#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
+on_rec_locs <- st_as_sf(on_rec_locs, coords = c("posX", "posY"))
+plot(on_rec_locs) # checking plot locations
+```
+
+## Distinct Offline Receiver Locations 
+
+```{r}
+# finds distinct points to plot for data visualization of offline recorded points 
+off_rec_locs <- IPS_offline_Data %>% 
+  select(posX, posY) %>% 
+  distinct()
+off_rec_locs
+#rec_locs[, 2:3] <- sapply(rec_locs[, 2:3], as.geom)
+off_rec_locs <- st_as_sf(off_rec_locs, coords = c("posX", "posY"))
+plot(off_rec_locs) # checking plot locations
+```
+
+## Access Point Locations
+```{r}
+# finds distinct points to plot for data visualization of access point locations 
+ap_locs <- IPS_offline_Data %>% 
+  select(c("MAC", "ap_x", "ap_y")) %>% 
+  distinct() %>%  # trimming excess access point locations 
+  na.omit()  # removing na values
+# ap_locs <- st_as_sf(ap_locs, coords = c("ap_x", "ap_y"))
+# ap_locs
+# checking results
+# plot(ap_locs) # plotting access point locations
+```
+
+## Creating Floorplan
+```{r}
+#MULTILINESTRING
+outer <- rbind(c(-0.5,-1.2), c(-0.5,14.2), c(33.8,14.2), c(33.8,-3.4), c(3,-3.4), c(3,-1.2),c(-0.5,-1.2)) #creating exterior outline
+low_rms <- rbind(c(3,-1.2), c(3,2.3), c(33.8,2.3))  #creating lower room outline
+# Creating lower section separating walls
+lw1 <- rbind(c(7.8,2.3), c(7.8,-3.4))
+lw2 <- rbind(c(11.3,2.3), c(11.3,-3.4))
+lw3 <- rbind(c(16.1,2.3), c(16.1,-3.4))
+lw4 <- rbind(c(19.8,2.3), c(19.8,-3.4))
+lw5 <- rbind(c(22.1,2.3), c(22.1,-3.4))
+lw6 <- rbind(c(24.4,2.3), c(24.4,-3.4))
+lw7 <- rbind(c(28,2.3), c(28,-3.4))
+lw8 <- rbind(c(30.3,2.3), c(30.3,-3.4))
+up_rms <- rbind(c(3,14.2), c(3,9.7), c(33.8,9.7)) #creating upper room outline
+# Creating lower section separating walls
+uw1 <- rbind(c(9,14.2), c(9,9.7))
+uw2 <- rbind(c(11.5,14.2), c(11.5,9.7))
+uw3 <- rbind(c(13.8,14.2), c(13.8,9.7))
+uw4 <- rbind(c(16.2,14.2), c(16.2,9.7))
+uw5 <- rbind(c(19.7,14.2), c(19.7,9.7))
+uw6 <- rbind(c(22.1,14.2), c(22.1,9.7))
+uw7 <- rbind(c(25.6,14.2), c(25.6,9.7))
+uw8 <- rbind(c(28.1,14.2), c(28.1,9.7))
+uw9 <- rbind(c(30.5,14.2), c(30.5,9.7))
+
+#creating multilinestring library(sf)
+(mls <- st_multilinestring(list(outer,low_rms,lw1,lw2,lw3,lw4,lw5,lw6,lw7,lw8,up_rms,uw1,uw2,uw3,uw4,uw5,uw6,uw7,uw8,uw9)))
+
+plot(mls) # inspecting mls
+
+#MULTIPOLYGON
+#center-row LEFT room
+p1 <- rbind(c(3,4), c(3,6.7), c(7.9,6.7), c(7.9,4), c(3,4))
+#p2 <- rbind(c(3.2,4.2), c(3.2,6.5), c(7.7,6.5), c(7.7,4.2), c(3.2,4.2))
+#pol <-st_polygon(list(p1,p2))
+#center-row MIDDLE room
+p3 <- rbind(c(13.6,4), c(13.6,6.7), c(19.9,6.7), c(19.9,4), c(13.6,4))
+#p4 <- rbind(c(13.8,4.2), c(13.8,6.5), c(19.7,6.5), c(19.7,4.2), c(13.8,4.2))
+#center-row RIGHT room
+p5 <- rbind(c(27,4), c(27,6.7), c(31,6.7), c(31,4), c(27,4))
+#p6 <- rbind(c(27.2,4.2), c(27.2,6.5), c(30.8,6.5), c(30.8,4.2), c(27.2,4.2))
+#Creating multiple polygons library(sf)
+(mpol <- st_multipolygon(list(list(p1), list(p3), list(p5))))
+
+plot(mpol) # inspecting polygon
+
+(sfc=st_sfc(mls, mpol))
+```
+```{r}
+# Creating matrices for receiver and access point locations to pass into st_multipoint function 
+# rec_points <- reduced_off %>% select(posX, posY) %>% as.matrix()
+# ap_points <- reduced_off %>% select(ap_x, ap_y) %>% as.matrix() 
+# 
+# # Creating the multipoint sf objects
+# rec_mp <- st_multipoint(rec_points, dim = "XY")
+# ap_mp <- st_multipoint(ap_points, dim = "XY")
+# 
+# # Creating multilinestring from multipoints
+# # dist_mls <- st_multilinestring(list(rbind(rec_points, ap_points)))
+# # dist_mls
+# # Create empty example plot
+# plot()
+# 
+# # Draw one line
+# segments(x0 = reduced_off$posX, y0 = reduced_off$posY, x1 = reduced_off$ap_x, y1 = reduced_off$ap_y, col = "darkgreen")
+
+```
+
+# Combining Visualizations & Plotting
+
+## Plot Combined Offline Data
+```{r}
+offline_grid <- ggplot() +
+  # inserting floor plan outline
+  geom_sf(data = sfc) +
+  # inserting ap locations
+  geom_point(data = ap_locs, aes(ap_x, ap_y, colour=MAC),
+
+             shape = 15,
+             size = 1.5,
+             show.legend = NA)+
+  # inserting offline receiver locations
+  geom_sf(data = off_rec_locs,
+             colour = "grey",
+             alpha = .8,
+             size = 1)+
+
+  xlim(-5, 35)+
+  ylim(-5, 15)+
+  labs(
+    title = "Base Floorplan",
+    subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
+    # caption = "",
+    # tag = "",
+    x = "Roughly 35 meters",
+    y = "Roughly 18 meters",
+    # colour = ""
+  )
+offline_grid
+```
+
+## Plot Combined Online Data
+```{r}
+online_grid <- ggplot() +
+  # inserting floor plan outline
+  geom_sf(data = sfc) +
+  # inserting ap locations
+  geom_point(data = ap_locs, aes(ap_x, ap_y, colour=MAC),
+
+             shape = 15,
+             size = 1.5,
+             show.legend = NA)+
+  
+  # inserting online receiver locations
+  geom_sf(data = on_rec_locs,
+             color = "blue",
+             alpha = .3,
+             size = 1) +
+
+  xlim(-5, 35)+
+  ylim(-5, 15)+
+  labs(
+    title = "Base Floorplan",
+    subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
+    # caption = "",
+    # tag = "",
+    x = "Roughly 35 meters",
+    y = "Roughly 18 meters",
+    # colour = ""
+  )
+online_grid
+```
+
+
+## Plot Combined base florplan
+```{r}
+base_grid <- ggplot() +
+  # inserting floor plan outline
+  geom_sf(data = sfc) +
+  # inserting ap locations
+  geom_point(data = ap_locs, aes(ap_x, ap_y, colour=MAC),
+
+             shape = 15,
+             size = 1.5,
+             show.legend = NA)+
+  # inserting offline receiver locations
+  geom_sf(data = off_rec_locs,
+             colour = "grey",
+             alpha = .8,
+             size = 1)+
+  # inserting online receiver locations
+  geom_sf(data = on_rec_locs,
+             color = "blue",
+             alpha = .3,
+             size = 1) +
+
+  xlim(-5, 35)+
+  ylim(-5, 15)+
+  labs(
+    title = "Base Floorplan",
+    subtitle = "Grey dots are offline recorded positions whereas blue represents the online",
+    # caption = "",
+    # tag = "",
+    x = "Roughly 35 meters",
+    y = "Roughly 18 meters",
+    # colour = ""
+  )
+base_grid
+```
+
+### Ploting timeline values
+
+```{r}
+# uniq_xy <- 
+  new_off %>% select(posX, posY) %>% distinct()
+# uniq_xy
+```
+
+
+
+```{r}
+g1 <-  %>% group_split(posX, posY)
+g11 <- as.data.frame.list(g1[1])
+g11  
+  # select(posX, posY, MAC, RSSI, ap_x, ap_y, c) %>% filter(MAC=="00:14:bf:b1:97:90") %>%  distinct()
+```
