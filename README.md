@@ -35,6 +35,7 @@
  ┃ ┗ 📄clean_data.R                         // Data tidying
  ┣ 📄LICENSE
  ┣ 📄README.md
+ ┣ 📄ips-ref.md                         // Sources for paper
  ┗ 📄agenda.md                          // Members' role
  ```
 
