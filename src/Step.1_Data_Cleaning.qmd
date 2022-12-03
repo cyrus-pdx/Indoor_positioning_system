@@ -178,14 +178,26 @@ IPS_online_Data$posZ <- NULL
 # Orientation -> Angle # 
 Ori.to.Angle <- function(angles) {
   refs = seq(0, by=45, length=9)
-  q = sapply(angles, function(o) which.min(abs(o-refs)))
+  q = sapply(angles, 
+             function(o){
+               if(o>0){
+               which.min(abs(o-refs))
+               }else{
+                 which.min(abs(o+360-refs))
+                 }})
   c(refs[1:8], 0)[q]
 }
 
 # Orientation -> Direction 
 Ori.to.Direction <- function(orientation) {
   angles = seq(from=0, to=360, by=45) 
-  q = sapply(orientation, function(index) which.min(abs(index-angles))) 
+  q = sapply(orientation, 
+             function(o){
+               if(o>0){
+               which.min(abs(o-angles))
+               }else{
+                 which.min(abs(o+360-angles))
+                 }})
   directions_index <- c(1:8, 1)[q]
   directions = c("E→", "NE↗", "N↑", "NW↖", "W←", "SW↙", "S↓", "SE↘") 
   directions[directions_index] 
@@ -235,6 +247,7 @@ offline.signalStat <- lapply(Offline_RSSI.statCompute,
                           stats = oneLoc.Angle.AP[1, ]
                           stats$medSignal = median(oneLoc.Angle.AP$RSSI)
                           stats$avgSignal = mean(oneLoc.Angle.AP$RSSI)
+                          stats$num = length(oneLoc.Angle.AP$RSSI)
                           stats$sdSignal = sd(oneLoc.Angle.AP$RSSI)
                           stats$iqrSignal = IQR(oneLoc.Angle.AP$RSSI)
                           stats
@@ -247,9 +260,6 @@ AP_Loc <- AP_Loc %>% rename(MAC=Macs)
 
 IPS_trainingData <- left_join(IPS_trainingData, AP_Loc, by="MAC") 
 IPS_trainingData <- IPS_trainingData %>% rename(apX=x, apY=y)
-
-IPS_online_Data <- left_join(IPS_online_Data, AP_Loc, by="MAC") 
-IPS_online_Data <- IPS_online_Data %>% rename(apX=x, apY=y)
 
 # Calculate Euclidean distances from the device to APs
 diffs <- IPS_trainingData[ , c("posX", "posY")] - IPS_trainingData[ , c("apX", "apY")]
@@ -265,9 +275,10 @@ remove(diffs)
 <!-- -----------Find Testing Data Set ----------  -->
 <!-- -------------------------------------------  -->
 
+
 ```{r}
 # Creates a 6 columns of signal strengths with respect to each APs
-keepVars <- c("posXY", "orientation", "angle", "direction")
+keepVars <- c("posX", "posY", "posXY", "orientation", "angle", "direction")
 online_RSSI.statCompute <- with(IPS_online_Data,
                                 by(IPS_online_Data, list(posXY),
                                    function(x) {
@@ -278,7 +289,6 @@ online_RSSI.statCompute <- with(IPS_online_Data,
                                      cbind(stats, y)
                                    }))
 IPS_testingData <- do.call("rbind", online_RSSI.statCompute)
-
 
 # Clear unneeded objects
 remove(online_RSSI.statCompute)
@@ -296,8 +306,8 @@ In deed, we have 60 locations and 166 locations observed in offline and online d
 ## Data Saving
 
 ```{r Step_3.Data_Saving}
-save(IPS_offline_Data, file = "IPS_offline.RData")
-save(IPS_trainingData, file = "IPS_trainingData.RData")
-save(IPS_online_Data, file = "IPS_online.RData")
-save(IPS_testingData, file = "IPS_testingData.RData")
+save(IPS_offline_Data, file = "clean_data/IPS_offline.RData")
+save(IPS_trainingData, file = "clean_data/IPS_trainingData.RData")
+save(IPS_online_Data, file = "clean_data/IPS_online.RData")
+save(IPS_testingData, file = "clean_data/IPS_testingData.RData")
 ```

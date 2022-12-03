@@ -95,24 +95,163 @@ library(ellipse)    # Simultaneous confidence interval region to check C.I. of 2
 library(plotly)     # User interactive plots
 
 set.seed(27)        # make random results reproducible
-
-WD <- getwd()
-setwd(WD)
-remove(WD)
+setwd("C:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Code")
 ```
 
 ## Data Import
 
 ```{r Step_4.Data_Import}
-load("IPS_Offline.RData")
-load("IPS_Online.RData")
+# Load Data
+load("clean_data/IPS_Offline.RData")
+load("clean_data/IPS_Online.RData")
+load("clean_data/IPS_trainingData.RData")
+load("clean_data/IPS_testingData.RData")
+
+# Load Functions
+load("clean_data/Fun-Ori2Angle.Rdata")
 ```
 
 ## Data Analysis
 
+```{r eval=FALSE}
+# For m angles, find the closest desired orientations to the new observations
+m <- 3
+angleNewObs <- -45
+refs <- seq(0, by=45, length=8)
+nearestAngle <- Ori.to.Angle(angleNewObs)
+
+if ( m%%2 == 1) {
+  angles = seq(-45*(m-1)/2, 45*(m-1)/2, length=m)
+} else {
+  m = m + 1
+  angles = seq(-45*(m-1)/2, 45*(m-1)/2, length=m)
+  if (sign(angleNewObs - nearestAngle) > -1)
+    angles = angles[-1]
+  else
+    angles = angles[-m]
+}
+
+# Map the angles to values in refs (-45 maps to 315 and 405 maps to 45)
+angles <- angles + nearestAngle
+angles[angles < 0] <- angles [angles <0] + 360
+angles[angles > 360] <- angles[angles >360] - 360
+
+trainSubset <- IPS_trainingData[IPS_trainingData$angle %in% angles, ]
+
+# Aggregate RSSI with respect to 6 APs
+reshapeSS <- function (data, varSignal = "signal", keepVars = c("posXY", "orientation", "direction")) {
+  byLocation = with(data, by(data, list(posXY),
+                             function(x) {
+                               ans = x[1, keepVars]
+                               avgSS = tapply(x[,varSignal], x$MAC, mean)
+                               y = matrix(avgSS, nrow=1, ncol=6, dimnames = list(ans$posXY, names(avgSS)))
+                               cbind(ans, y)
+                             }))
+  newDataSS <- do.call("rbind", byLocation)
+  return(newDataSS)
+}
+
+# Summarize and reshape trainSubset
+trainSS <- reshapeSS(trainSubset, varSignal = "avgSignal")
+```
+
 ```{r Step_4.Data_Analysis}
+#Aggregate RSSI with respect to 6 APs
+reshapeSS <- function (data, varSignal = "signal", keepVars = c("posXY", "posX", "posY")) {
+  byLocation = with(data, by(data, list(posXY),
+                             function(x) {
+                               ans = x[1, keepVars]
+                               avgSS = tapply(x[,varSignal], x$MAC, mean)
+                               y = matrix(avgSS, nrow=1, ncol=6, dimnames = list(ans$posXY, names(avgSS)))
+                               cbind(ans, y)
+                             }))
+  newDataSS <- do.call("rbind", byLocation)
+  return(newDataSS)
+}
 
+selectTrain <- function(angle.newObs, data, m){
+  # m is the number of angles to keep between 1 and 5
+  refs = seq(0, by = 45, length  = 8)
+  nearestAngle = Ori.to.Angle(angle.newObs)
+  
+  if (m %% 2 == 1) 
+    angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+  else {
+    m = m + 1
+    angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+    if (sign(angle.newObs - nearestAngle) > -1) 
+      angles = angles[ -1 ]
+    else 
+      angles = angles[ -m ]
+  }
+  angles = angles + nearestAngle
+  angles[angles < 0] = angles[ angles < 0 ] + 360
+  angles[angles > 360] = angles[ angles > 360 ] - 360
+  angles = sort(angles) 
+  
+  trainSubset = data[ data$angle %in% angles, ]
+  reshapeSS(trainSubset, varSignal = "avgSignal")
+}
 
+# Test function with new obs angle 130
+train.at.angle <- selectTrain(angle.newObs=130, data=IPS_trainingData, m=3)
+# length(train130[[1]])
+# [1] 166 #Indeed we have 166 locations recorded
+```
+
+```{r}
+#Build function findNN that finds the k nearest neighbors from any point
+#Parameters are a numeric vector of 6 new signal strengths and the return value from selectTrain()
+
+#Function returns the locations of the training observations in order of closeness to the new observation's signal strength
+findNN <- function(newSignal, trainSubset) {
+  diffs = apply(trainSubset[ , 4:9], 1, function(x) x - newSignal)
+  dists = apply(diffs, 2, function(x) sqrt(sum(x^2)))
+  closest = order(dists)
+  return(trainSubset[closest, 1:3])
+}
+
+#Distance Weighted average the first k locations returned by findNN to estimate location of new observation
+predXY = function(newSignals, newAngles, trainData, 
+                  numAngles = 1, k = 3){
+  
+  closeXY = list(length = nrow(newSignals))
+  
+  for (i in 1:nrow(newSignals)) {
+    trainSS = selectTrain(newAngles[i], trainData, m = numAngles)
+    closeXY[[i]] = 
+      findNN(newSignal = as.numeric(newSignals[i, ]), trainSS)
+  }
+  
+  estXY = lapply(closeXY, 
+                 function(x) sapply(x[ , 2:3], 
+                                    function(x) mean(x[1:k])))
+  estXY = do.call("rbind", estXY)
+  return(estXY)
+}
+
+#Test function with 3 nearest neighbors and 3 orientations
+estXYk3 <- predXY(newSignals = IPS_testingData[ , 7:12], 
+                  newAngles = IPS_testingData[ , 5], 
+                  IPS_trainingData, numAngles = 3, k = 3)
+#Test function with 1 nearest neighbors and 3 orientations
+estXYk1 <- predXY(newSignals = IPS_testingData[ , 7:12], 
+                  newAngles = IPS_testingData[ , 5], 
+                  IPS_trainingData, numAngles = 3, k = 1)
+
+#Map of actual vs predicted locations of new signals shows model accuracy
+#K=3 more accurate than k=1 because errors are shorter distance and less problematic because they follow the hallways
+#Check website for plotting code
+
+#Calculate SSE to measure fit
+calcError <- function(estXY, actualXY) {
+  sum(rowSums( (estXY - actualXY)^2) )
+}
+actualXY <- IPS_testingData[ , c("posX", "posY")]
+sapply(list(estXYk1, estXYk3), calcError, actualXY)
+```
+
+```{r}
 
 ```
 
