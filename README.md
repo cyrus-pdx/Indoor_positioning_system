@@ -7,15 +7,21 @@
  ┃ ┣ 📄floorplan.jpg
  ┃ ┗ 📄Projects  Instructions.pdf
  ┣ 📂src
+ ┃ ┣ 📂clean_data
+ ┃ ┃ ┣ 📄Fun-Ori2Angle.Rdata
+ ┃ ┃ ┣ 📄IPS_AP_Locations.RData
+ ┃ ┃ ┣ 📄IPS_offline.RData
+ ┃ ┃ ┣ 📄IPS_online.RData
+ ┃ ┃ ┣ 📄IPS_testingData.RData
+ ┃ ┃ ┗ 📄IPS_trainingData.RData
  ┃ ┣ 📂raw_data
  ┃ ┃ ┣ 📄accessPointLocations.txt
  ┃ ┃ ┣ 📄offline.final.trace.txt
  ┃ ┃ ┗ 📄online.final.trace.txt
- ┃ ┣ 📄IPS_Offline.RData
- ┃ ┣ 📄IPS_Online.RData
  ┃ ┣ 📄Step.1_Data_Cleaning.qmd
+ ┃ ┣ 📄Step.1_Data_Cleaning.R
  ┃ ┣ 📄Step.2_Data_Analysis.qmd
- ┃ ┗ 📄Step.3_Data_Visualization.qmd
+ ┃ ┗ 📄Step.2_Data_Analysis.R
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
@@ -28,8 +34,8 @@
 
 **Objective**:
 - [x] 1. Data Cleaning 
-- [ ] 2. Data Analysis (🛠️ in progress...)
-- [ ] 3. Data Visualizations 
+- [x] 2. Data Analysis (🛠️ in progress...)
+- [x] 3. Data Visualizations 
 - [ ] 4. Presentation 
 - [ ] 5. Report
 
