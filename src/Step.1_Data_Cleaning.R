@@ -38,9 +38,9 @@ library(plotly)     # User interactive plots
 
 set.seed(27)        # make random results reproducible
 
-# WD <- getwd()       # pwd
-# setwd(WD)           # cd WD
-# remove(WD)          # del WD
+WD <- getwd()       # pwd
+setwd(WD)           # cd WD
+remove(WD)          # del WD
 
 #--------------------------------------------------------#
 #------------------Step 1: Data Cleaning-----------------#
