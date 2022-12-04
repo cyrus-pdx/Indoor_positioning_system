@@ -310,4 +310,5 @@ save(IPS_offline_Data, file = "clean_data/IPS_offline.RData")
 save(IPS_trainingData, file = "clean_data/IPS_trainingData.RData")
 save(IPS_online_Data, file = "clean_data/IPS_online.RData")
 save(IPS_testingData, file = "clean_data/IPS_testingData.RData")
+save(IPS_testingData, file = "clean_data/IPS_AP_Locations.RData")
 ```
