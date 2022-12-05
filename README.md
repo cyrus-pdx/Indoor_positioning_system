@@ -8,7 +8,12 @@
  ┃ ┗ 📄Projects  Instructions.pdf
  ┣ 📂src
  ┃ ┣ 📂clean_data
+ ┃ ┃ ┣ 📄Fun-findNN.RData
+ ┃ ┃ ┣ 📄Fun-floorErrorMap.RData
  ┃ ┃ ┣ 📄Fun-Ori2Angle.Rdata
+ ┃ ┃ ┣ 📄Fun-predXY.RData
+ ┃ ┃ ┣ 📄Fun-reshapeSS.RData
+ ┃ ┃ ┣ 📄Fun-selectTrain.RData
  ┃ ┃ ┣ 📄IPS_AP_Locations.RData
  ┃ ┃ ┣ 📄IPS_offline.RData
  ┃ ┃ ┣ 📄IPS_online.RData
@@ -21,7 +26,9 @@
  ┃ ┣ 📄Step.1_Data_Cleaning.qmd
  ┃ ┣ 📄Step.1_Data_Cleaning.R
  ┃ ┣ 📄Step.2_Data_Analysis.qmd
- ┃ ┗ 📄Step.2_Data_Analysis.R
+ ┃ ┣ 📄Step.2_Data_Analysis.R
+ ┃ ┣ 📄Step.3_Data_Visualization.qmd
+ ┃ ┗ 📄Step.3_Data_Visualization.R
  ┣ 📄LICENSE
  ┗ 📄README.md
 ```
