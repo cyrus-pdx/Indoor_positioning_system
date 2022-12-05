@@ -63,218 +63,26 @@ library(lsa)
 #setwd("")
 ```
 
-# Import & Tidying 
+
+# Loading Data 
 ```{r}
 load("~/Projects/IPS/src/IPS_offline.RData")
 load("~/Projects/IPS/src/IPS_online.RData")
 ```
 
-## Linear Model To Establish Significance Of Variables
-
 ```{r}
-# # Setting RSSI as the dependent variable because it is what varies given proximity
-# RSSI_lm <- lm(RSSI~posX+posY+orientation+ap_x+ap_y, new_off) # this model excludes the c variable that is distance between receiver and ap
-# summary(RSSI_lm) # note: orientation has a p value of 0.432 making it insignificant
+# magnitude <- function(a,b){
+#   return(sqrt(a^2+b^2))
+# }
+# 
+# euclidean <- function(a,b){
+#   return(abs(a-b))
+# }
+
+# sim_euc <- function(a,b){
+#   return(10^(-))
+# }
 ```
-
-```{r}
-# Setting RSSI as the dependent variable because it is what varies given proximity 
-# RSSI_lm2 <- lm(RSSI~posX+posY+orientation+ap_x+ap_y+c, new_off) # this model includes c variable to examine what happens to the p-value for orientation
-# summary(RSSI_lm2) # note that the p value for orientation has gotten larger by 20.7% making it non-significant to RSSI values that determine signal strength
-```
-
-```{r}
-IPS_offline_Data
-```
-
-```{r}
-IPS_online_Data
-```
-
-```{r}
-max(IPS_offline_Data$RSSI)-IPS_offline_Data$RSSI[1]
-```
-```{r}
-magnitude <- function(a,b){
-  return(sqrt(a^2+b^2))
-}
-
-euclidean <- function(a,b){
-  return(abs(a-b))
-}
-
-sim_euc <- function(a,b){
-  return(10^(-))
-}
-```
-
-
-### Trimming Offline Data Based On Significance 
-```{r}
-training <- function(x){
-  trimmed <- x[-c(1,4,8:10)] %>%  # Removing unnecessary offline variables
-    mutate(diffMAX = (max(RSSI)-RSSI)) %>% 
-    group_by(posX, posY, MAC) %>% 
-    mutate(avg_RSSI = mean(RSSI)) %>% 
-    mutate(avg_diffMAX = mean(diffMAX)) %>%
-    mutate(rp_mag = magnitude(posX, posY)) %>% 
-    mutate(ap_mag = magnitude(ap_x,ap_y)) %>% 
-    mutate(rp_ap_mag = euclidean(rp_mag, ap_mag))
-    # mutate(sd_RSSI = sd(RSSI)) %>%
-    # mutate(var_RSSI = var(RSSI))
-  rownames(trimmed)<-NULL
-  return(trimmed)
-}
-
-testing <- function(x){
-  no_locs <- x[-c(1:4,8:10)] %>% 
-    mutate(diffMAX = (max(RSSI)-RSSI)) %>% 
-    group_by(MAC) %>%
-    distinct()
-  rownames(no_locs)<-NULL
-  return(no_locs)
-}
-
-```
-
-```{r}
-avg_off <- training(x=IPS_offline_Data)
-avg_off 
-```
-
-
-```{r}
-cos_mat <- as.matrix(avg_off$rp_mag) 
-cos_mat[cos_mat(2] = avg_off$ap_mag
-cos_mat
-```
-
-
-```{r}
-ggplot(data = avg_off, aes(dist, RSSI, group=posXY, colour = MAC)) +
-  # geom_line()
-  geom_boxplot()
-```
-
-
-```{r}
-temp <- mutate(avg_off, calc_dist = round(10^(diffMAX-32.44-20 * log10(frequency)/20), digits = 3)) 
-temp
-```
-
-
-```{r}
-avg_on <- testing(x=IPS_offline_Data)
-avg_on
-```
-
-
-```{r}
-summary(avg_on)
-summary(avg_off)
-```
-
-
-```{r}
-fingerprints <- function(x){
-  reduced <- x %>% select(-c(RSSI, diffMAX)) %>% distinct()
-  return(reduced)
-}
-```
-
-```{r}
-off_fp <- fingerprints(avg_off)
-on_fp <- avg_on %>% group_by(MAC) %>% distinct()
-
-off_fp
-```
-
-```{r}
-lmod <- lm(avg_RSSI ~ dist,data = off_fp)
-summary(lmod)
-```
-
-
-```{r}
-off_fp %>%                                        # Specify data frame
-  group_by(posXY) %>%                         # Specify group indicator
-  summarise_at(vars(avg_RSSI),              # Specify column
-               list(name = mean))               # Specify function
-
-# aggregate(x = off_fp$posXY,                # Specify data column
-#           by = list(off_fp$avg_RSSI),              # Specify group indicator
-#           FUN = mean)                           # Specify function (i.e. mean)
-# mutate(off_fp, var = var())
-```
-
-
-```{r}
-ggplot(data= off_fp)+
-  geom_point(aes(dist, avg_RSSI, group=posXY, colour=MAC ))
-```
-
-
-```{r}
-off_fp
-```
-
-```{r}
-avg_off_split <- avg_off %>%  group_split(posX, posY)
-avg_off_split[1]
-```
-```{r}
-avg_off_split[2]
-```
-
-
-```{r}
-avg_off %>% select(avg_RSSI, sd_RSSI) %>% select(-c(posX, posY)) %>%  distinct()
-```
-
-
-```{r}
-# off_stats <- reduced_off %>% group_by(posX, posY, MAC) %>% 
-#   mutate(avg_RSSI = mean(RSSI)) %>%
-#   mutate(error_RSSI = abs(RSSI-avg_RSSI)) %>% 
-#   mutate(sd_RSSI = sd(RSSI))
-# off_stats
-```
-
-```{r}
-#
-```
-
-
-```{r}
-reduced_off <- new_off %>% distinct()
-reduced_off <- as.data.frame(reduced_off)
-reduced_off
-```
-
-```{r}
-reduced_off %>% select(-c(RSSI)) %>% distinct()
-```
-
-```{r}
-# ap_2.5_0.8 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:8a")
-# ap_1.0_14.0 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:90")
-# ap_7.5_6.3 <- trim_acc %>% filter(MAC == "00:0f:a3:39:e1:c0")
-# ap_33.5_9.3 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:8d")
-# ap_33.5_2.8 <- trim_acc %>% filter(MAC == "00:14:bf:b1:97:81")
-# ap_12.8_2.8 <- trim_acc %>% filter(MAC == "00:14:bf:3b:c7:c6")
-```
-
-
-```{r eval=FALSE, include=FALSE}
-# ap_locs # checking access point locations df
-# c_max <- setNames(aggregate(new_off$c, by = list(new_off$MAC), max), c("MAC", "max_dist")) # finding max distance per access point
-# c_min <- setNames(aggregate(new_off$c, by = list(new_off$MAC), min), c("MAC", "min_dist")) # finding the minimum distance from access point to offline (x,y) coordinate
-# ap_dist <- merge(ap_locs, c_max, by="MAC") # combining c_max df to ap_dist df
-# ap_dist <- merge(ap_dist, c_min, by="MAC") # combining c_min df to ap_dist df
-# ap_dist
-```
-
-## Spliting Offline Data By Receiver Locations
 
 # Visualization Tidying
 
@@ -486,21 +294,4 @@ base_grid <- ggplot() +
     # colour = ""
   )
 base_grid
-```
-
-### Ploting timeline values
-
-```{r}
-# uniq_xy <- 
-  new_off %>% select(posX, posY) %>% distinct()
-# uniq_xy
-```
-
-
-
-```{r}
-g1 <-  %>% group_split(posX, posY)
-g11 <- as.data.frame.list(g1[1])
-g11  
-  # select(posX, posY, MAC, RSSI, ap_x, ap_y, c) %>% filter(MAC=="00:14:bf:b1:97:90") %>%  distinct()
 ```

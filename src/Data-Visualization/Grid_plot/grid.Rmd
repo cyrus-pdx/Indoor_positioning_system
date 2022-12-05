@@ -19,7 +19,7 @@ library(tinytex)   # Helper Functions to Install and Maintain TeX Live, and Comp
 library(rlang)     # Functions for Base Types and Core R and 'Tidyverse' Features
 library(rmarkdown) # Dynamic Documents for R
 library(rmdformats)
-library(knitr)
+library(knitr) 
 library(tidyverse) # Load core packages:
 library(ggplot2)   # data visualization.
 library(dplyr)     # data manipulation.
@@ -64,8 +64,8 @@ library(lubridate)
 
 # Import & Tidying 
 ```{r}
-load("~/Projects/Indoor_positioning_system/src/IPS_Offline.RData")
-load("~/Projects/Indoor_positioning_system/src/IPS_Online.RData")
+load("~/Projects/IPS/src/IPS_offline.RData")
+load("~/Projects/IPS/src/IPS_online.RData")
 ```
 
 ## Linear Model To Establish Significance Of Variables
@@ -97,7 +97,7 @@ max(IPS_offline_Data$RSSI)-IPS_offline_Data$RSSI[1]
 ### Trimming Offline Data Based On Significance 
 ```{r}
 training <- function(x){
-  trimmed <- x[-c(1,4,7:9)] %>%  # Removing unnecessary offline variables
+  trimmed <- x[-c(4,8:11)] %>%  # Removing unnecessary offline variables
     mutate(loss = (max(RSSI)-RSSI)) %>% 
     group_by(posX, posY, MAC) %>% 
     mutate(avg_RSSI = mean(RSSI)) %>% 
@@ -152,13 +152,14 @@ on_fp
 
 
 ```{r}
-off_fp
+view(off_fp)
 ```
 
 ```{r}
 avg_off_split <- avg_off %>%  group_split(posX, posY)
 avg_off_split[1]
 ```
+
 ```{r}
 avg_off_split[2]
 ```

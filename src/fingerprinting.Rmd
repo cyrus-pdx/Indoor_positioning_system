@@ -1,0 +1,139 @@
+---
+title: "Data Fingerprints"
+author: "Cyrus Cravens"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: chaos
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tinytex)   # Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents
+library(rlang)     # Functions for Base Types and Core R and 'Tidyverse' Features
+library(rmarkdown) # Dynamic Documents for R
+library(rmdformats)
+library(knitr)
+library(tidyverse)  # Load core packages:
+# ggplot2,   for data visualization.
+# dplyr,     for data manipulation.
+# tidyr,     for data tidying.
+# purrr,     for functional programming.
+# tibble,    for tibbles, a typern re-imagining of data frames.
+# stringr,   for strings.
+# forcats,   for factors.
+# lubridate, for date/times.
+# readr,     for reading .csv, .tsv, and .fwf files.
+# readxl,    for reading .xls, and .xlxs files.
+# feather,   for sharing with Python and other languages.
+# haven,     for SPSS, SAS and Stata files.
+# httr,      for web apis.
+# jsonlite   for JSON.
+# rvest,     for web scraping.
+# xml2,      for XML.
+# typelr,    for typelling within a pipeline
+# broom,     for turning typels into tidy data
+# hms,       for times.
+
+library(magrittr)   # Pipeline operator
+library(lobstr)     # Visualizing abstract syntax trees, stack trees, and object sizes
+library(pander)     # Exporting/converting complex pandoc documents, EX: df to Pandoc table
+library(ggforce)    # More plot functions on top of ggplot2
+library(ggpubr)     # Automatically add p-values and significance levels  plots.
+library(sf)         # Geo-spatial vector manipulation: points, lines, polygons
+library(kableExtra) # Generate 90 % of complex/advanced/self-customized/beautiful tables
+library(latex2exp)  # Latex axis titles in ggplot2
+library(ellipse)    # Simultaneous confidence interval region to check C.I. of 2 slope parameters
+library(plotly)     # User interactive plots
+library(reader)
+library(qdapRegex)
+library(sp)
+library(ff)
+library(ldat)
+library(ipft)
+library(cluster)
+library(ClustOfVar)
+library(mclust)
+set.seed(27)        # make random results reproducible
+WD <- getwd()
+setwd(WD)
+remove(WD)
+```
+
+# Tidying Imported Data
+```{r}
+load("~/Projects/IPS/src/IPS_offline.RData")
+load("~/Projects/IPS/src/IPS_online.RData")
+```
+
+```{r}
+IPS_offline_Data
+```
+
+```{r}
+IPS_online_Data
+```
+## Tidying Functions
+```{r}
+# Trimming the offline training data
+training <- function(x){
+  trimmed <- x[-c(4,8:11)] %>%  # Removing unnecessary offline variables
+    group_by(posX, posY, MAC) %>% 
+    mutate(avg_rssi = mean(RSSI)) %>%
+    mutate(min_rssi = min(RSSI)) %>%
+    mutate(max_rssi = max(RSSI)) %>% 
+    ungroup() 
+  return(trimmed)
+}
+
+fingerprints <- function(x){
+  fprints <- training(x) %>% 
+    select(-c(RSSI)) %>% 
+    distinct() %>% 
+    ungroup() %>% 
+    arrange(timestamp, WAP)
+  fprints$group <- c(0, rep(1:(nrow(fprints)-1)%/%6))
+  return(fprints)
+}
+
+```
+
+```{r}
+testing <- function(x){
+  x[-c(2:4,7:11,15)] %>% 
+    group_by(timestamp, MAC) %>%
+    mutate(avg_rssi = mean(RSSI)) %>%
+    # mutate(min_rssi = min(RSSI)) %>%
+    # mutate(max_rssi = max(RSSI)) %>%
+    ungroup()%>% 
+    arrange(timestamp, WAP)
+}
+```
+
+```{r}
+ips_train <- training(IPS_offline_Data)
+ips_train
+```
+
+```{r}
+# createing a fingerprints data frame
+ips_fprints <- fingerprints(IPS_offline_Data)
+ips_fprints
+```
+
+```{r}
+ips_test <- testing(IPS_online_Data)
+ips_test
+```
+
+```{r}
+ips_test %>% count(timestamp)
+```
+
+
