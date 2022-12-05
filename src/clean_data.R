@@ -69,8 +69,8 @@ offline_tmp   <- lapply(offlines, processLine)
 onlines <- online_data_txt[substr(online_data_txt, 1,1) != "#"]  #Removes comments from data
 online_tmp   <- lapply(onlines, processLine)
 
-IPS_offline_Data <- as.data.frame(do.call("rbind", offline_tmp), stringsAsFactors=F)
-IPS_online_Data  <- as.data.frame(do.call("rbind", online_tmp), stringsAsFactors=F)
+IPS_offline_Data <- as.data.frame(do.call("rbind", offline_tmp), stringsAsFactors=F, row.names = F)
+IPS_online_Data  <- as.data.frame(do.call("rbind", online_tmp), stringsAsFactors=F, row.names = F)
 
 # Add column names
 names(IPS_offline_Data) <- c("timestamp", "scanedMAC", "posX", "posY", "posZ", "orientation", "MAC", "RSSI", "frequency", "type")
@@ -81,7 +81,7 @@ names(IPS_online_Data) <- c("timestamp", "scanedMAC", "posX", "posY", "posZ", "o
 #--------------------------------------------------------#
 
 # Data coercion chr -> numeric
-varList <- c("timestamp", "posX", "posY", "posZ", "orientation", "RSSI", "frequency")
+varList <- c("posX", "posY", "posZ", "orientation", "RSSI", "frequency")
 IPS_offline_Data[varList] <- lapply(IPS_offline_Data[varList], as.numeric)
 IPS_online_Data[varList] <- lapply(IPS_online_Data[varList], as.numeric)
 
@@ -90,11 +90,11 @@ IPS_offline_Data$RSSI <- as.numeric(gsub("\\-","",IPS_offline_Data$RSSI))
 IPS_online_Data$RSSI <- as.numeric(gsub("\\-","",IPS_online_Data$RSSI))
 
 # Convert timestamp to millisecond for Unix time conversions
-IPS_offline_Data$timestamp <- IPS_offline_Data$timestamp/1000
-IPS_offline_Data$timestamp <- as.POSIXct(IPS_offline_Data$time, tz="UTC", origin = "1970-01-01")
-
-IPS_online_Data$timestamp <- IPS_online_Data$timestamp/1000
-IPS_online_Data$timestamp <- as.POSIXct(IPS_online_Data$time, tz="UTC", origin = "1970-01-01")
+# IPS_offline_Data$timestamp <- IPS_offline_Data$timestamp/1000
+# IPS_offline_Data$timestamp <- as.POSIXct(IPS_offline_Data$time, tz="UTC", origin = "1970-01-01")
+# 
+# IPS_online_Data$timestamp <- IPS_online_Data$timestamp/1000
+# IPS_online_Data$timestamp <- as.POSIXct(IPS_online_Data$time, tz="UTC", origin = "1970-01-01")
 
 # summary(sapply(IPS_offline_Data[,c("scanedMAC", "frequency", "MAC", "type")], as.factor))
 # summary(sapply(IPS_online_Data[,c("scanedMAC", "frequency", "MAC", "type")], as.factor))
@@ -159,8 +159,8 @@ IPS_offline_Data <- IPS_offline_Data[IPS_offline_Data$MAC %in% AP_Loc$Macs,]
 IPS_online_Data <- IPS_online_Data[IPS_online_Data$MAC %in% AP_Loc$Macs,]
 
 # Since there is a 1:1 relationship between Macs and frequencies, drop freq channel
-IPS_offline_Data$frequency <- IPS_offline_Data$frequency *10^(-9)
-IPS_online_Data$frequency <- IPS_online_Data$frequency *10^(-9)
+IPS_offline_Data$frequency <- IPS_offline_Data$frequency *10^(-6) # converts to MHz
+IPS_online_Data$frequency <- IPS_online_Data$frequency *10^(-6)   # converts to MHz
 
 # Paste all combos of x and y
 IPS_offline_Data$posXY <- paste(IPS_offline_Data$posX, IPS_offline_Data$posY, sep=", ") 
@@ -169,18 +169,26 @@ IPS_online_Data$posXY <- paste(IPS_online_Data$posX, IPS_online_Data$posY, sep="
 # summary(IPS_offline_Data)
 
 # Adding (x,y) access point coordinates to Offline
-IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
-                                                           ifelse(MAC %in% "00:14:bf:b1:97:8a", 2.5,
-                                                                  ifelse(MAC %in% "00:14:bf:3b:c7:c6", 12.8,
-                                                                         ifelse(MAC %in% "00:14:bf:b1:97:90", 1.0,
-                                                                                ifelse(MAC %in% "00:14:bf:b1:97:8d", 33.5,
-                                                                                       ifelse(MAC %in% "00:14:bf:b1:97:81", 33.5, NA))))))) %>%
-  mutate(IPS_offline_Data, ap_y = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 6.3,
-                                         ifelse(MAC %in% "00:14:bf:b1:97:8a", -0.8,
-                                                ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
-                                                       ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
-                                                              ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
-                                                                     ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) %>%
+IPS_offline_Data <- IPS_offline_Data %>% 
+  mutate(ap_x = case_when(MAC == "00:0f:a3:39:e1:c0" ~ 7.5,
+                          MAC == "00:14:bf:b1:97:8a" ~ 2.5,
+                          MAC == "00:14:bf:3b:c7:c6" ~ 12.8,
+                          MAC == "00:14:bf:b1:97:90" ~ 1.0,
+                          MAC == "00:14:bf:b1:97:8d" ~ 33.5,
+                          MAC == "00:14:bf:b1:97:81" ~ 33.5)) %>%
+  mutate(ap_y = case_when(MAC == "00:0f:a3:39:e1:c0" ~ 6.3,
+                          MAC == "00:14:bf:b1:97:8a" ~ -0.8,
+                          MAC == "00:14:bf:3b:c7:c6" ~ -2.8,
+                          MAC == "00:14:bf:b1:97:90" ~ 14.0,
+                          MAC == "00:14:bf:b1:97:8d" ~ 9.3,
+                          MAC == "00:14:bf:b1:97:81" ~ 2.8)) %>%
+  mutate(WAP = case_when(MAC == "00:14:bf:b1:97:90" ~ "wap1",
+                         MAC == "00:14:bf:b1:97:8a" ~ "wap2",
+                         MAC == "00:0f:a3:39:e1:c0" ~ "wap3",
+                         MAC == "00:14:bf:3b:c7:c6" ~ "wap4",
+                         MAC == "00:14:bf:b1:97:81" ~ "wap5",
+                         MAC == "00:14:bf:b1:97:8d" ~ "wap6",)) %>% 
+  ungroup() %>% 
   # Creates new variables to apply Pythagorean theorem to plot radius
   mutate(IPS_offline_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates
   mutate(IPS_offline_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates
@@ -188,24 +196,34 @@ IPS_offline_Data <- mutate(IPS_offline_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39
   select(-c(a,b)) #removing a & b variables
 # summary(IPS_offline_Data)
 # Adding (x,y) access point coordinates to online
-IPS_online_Data <- mutate(IPS_online_Data, ap_x = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 7.5,
-                                                         ifelse(MAC %in% "00:14:bf:b1:97:8a", 2.5,
-                                                                ifelse(MAC %in% "00:14:bf:3b:c7:c6", 12.8,
-                                                                       ifelse(MAC %in% "00:14:bf:b1:97:90", 1.0,
-                                                                              ifelse(MAC %in% "00:14:bf:b1:97:8d", 33.5,
-                                                                                     ifelse(MAC %in% "00:14:bf:b1:97:81", 33.5, NA))))))) %>%
-  mutate(IPS_online_Data, ap_y = ifelse(MAC %in% "00:0f:a3:39:e1:c0", 6.3,
-                                        ifelse(MAC %in% "00:14:bf:b1:97:8a", -0.8,
-                                               ifelse(MAC %in% "00:14:bf:3b:c7:c6", -2.8,
-                                                      ifelse(MAC %in% "00:14:bf:b1:97:90", 14.0,
-                                                             ifelse(MAC %in% "00:14:bf:b1:97:8d", 9.3,
-                                                                    ifelse(MAC %in% "00:14:bf:b1:97:81", 2.8, NA))))))) #%>%
+IPS_online_Data <- IPS_online_Data %>% 
+  mutate(ap_x = case_when(MAC == "00:0f:a3:39:e1:c0" ~ 7.5,
+                          MAC == "00:14:bf:b1:97:8a" ~ 2.5,
+                          MAC == "00:14:bf:3b:c7:c6" ~ 12.8,
+                          MAC == "00:14:bf:b1:97:90" ~ 1.0,
+                          MAC == "00:14:bf:b1:97:8d" ~ 33.5,
+                          MAC == "00:14:bf:b1:97:81" ~ 33.5)) %>%
+  mutate(ap_y = case_when(MAC == "00:0f:a3:39:e1:c0" ~ 6.3,
+                          MAC == "00:14:bf:b1:97:8a" ~ -0.8,
+                          MAC == "00:14:bf:3b:c7:c6" ~ -2.8,
+                          MAC == "00:14:bf:b1:97:90" ~ 14.0,
+                          MAC == "00:14:bf:b1:97:8d" ~ 9.3,
+                          MAC == "00:14:bf:b1:97:81" ~ 2.8)) %>%
+  mutate(WAP = case_when(MAC == "00:14:bf:b1:97:90" ~ "wap1",
+                         MAC == "00:14:bf:b1:97:8a" ~ "wap2",
+                         MAC == "00:0f:a3:39:e1:c0" ~ "wap3",
+                         MAC == "00:14:bf:3b:c7:c6" ~ "wap4",
+                         MAC == "00:14:bf:b1:97:81" ~ "wap5",
+                         MAC == "00:14:bf:b1:97:8d" ~ "wap6",)) %>% 
+  ungroup()
   # Creates new variables to apply Pythagorean theorem to plot radius
   # mutate(IPS_online_Data, a = (abs(posX-ap_x))) %>%  # creates distance between x coordinates
   # mutate(IPS_online_Data, b = (abs(posY-ap_y))) %>% # creates distance between y coordinates
   # mutate(IPS_online_Data, dist = (sqrt(a^2+b^2))) %>%  # finds distance between (x,y) points
   # select(-c(a,b)) #removing a & b variables
 
+rownames(IPS_offline_Data)<-NULL
+rownames(IPS_online_Data)<-NULL
 #--------------------------------------------------------#
 #------------------Step 3: Data Saving-------------------#
 #--------------------------------------------------------#
