@@ -105,8 +105,7 @@ remove(WD)          # del WD
 
 ## Data Import
 ```{r Data_Import}
-load("IPS_Offline.RData")
-load("IPS_Online.RData")
+
 ```
 
 ## Data Analysis

@@ -1,7 +1,6 @@
 ---
 title: "Indoor Positioning System"
 subtitle: "Data_Visualizaion"
-author: "Sang Xing"
 subtitle: "STAT 410"
 format: 
   html:

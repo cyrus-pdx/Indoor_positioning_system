@@ -1,5 +1,5 @@
 # Members' Agenda Outline
-  
+
 |    Member   |      Role      |
 |:-----------:|:--------------:|
 | braadams    | Tidy Scripting |
@@ -36,4 +36,4 @@ jadiri28:
 
 Sang-Buster:
 - [x] Complete data tidyng
-- [ ] Complete KNN algorithm (🛠️ in progress...)
+- [x] Complete KNN algorithm 

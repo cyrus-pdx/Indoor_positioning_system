@@ -1,6 +1,5 @@
 ---
 title: "K-nearest Neighbors Algorithm"
-author: "Go With The Flow"
 date: "`r Sys.Date()`"
 format: 
   html:

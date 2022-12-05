@@ -1,7 +1,6 @@
 ---
 title: "Indoor Positioning System"
 subtitle: "Data_Cleaning"
-author: "Sang Xing"
 subtitle: "STAT 410"
 format: 
   html:
