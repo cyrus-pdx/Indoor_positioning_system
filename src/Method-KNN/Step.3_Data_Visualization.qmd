@@ -1,7 +1,6 @@
 ---
 title: "Indoor Positioning System"
 subtitle: "Data_Visualizaion"
-author: "Sang Xing"
 subtitle: "STAT 410"
 format: 
   html:
@@ -97,7 +96,10 @@ library(plotly)     # User interactive plots
 library(fields)     # Used for drawing heat maps
 
 set.seed(27)        # make random results reproducible
-setwd("C:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Code")
+
+WD <- getwd()
+setwd(WD)
+remove(WD)
 ```
 
 ## Data Import
