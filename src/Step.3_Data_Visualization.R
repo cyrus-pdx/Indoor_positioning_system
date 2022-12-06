@@ -1,65 +1,7 @@
----
-title: "Indoor Positioning System"
-subtitle: "Data_Visualizaion"
-author: "Sang Xing"
-subtitle: "STAT 410"
-format: 
-  html:
-    fig-width: 8
-    fig-height: 4
-    theme:
-      dark: darkly
-      light: flatly
-    toc: true
-    toc-title: Contents
-    toc-depth: 4
-    toc-location: right
-    number-sections: false
-    number-depth: 3
-    anchor-sections: true
-    smooth-scroll: true
-    link-external-icon: false
-    link-external-newwindow: true
-    code-fold: true
-    code-tools: 
-      source: true
-      toggle: true
-      caption: none
-    code-overflow: scroll
-    code-summary: "Show the code"
-    highlight-style: atom-one
-    link-external-filter: '^(?:http:|https:)\/\/www\.quarto\.org\/custom'
-    html-math-method:
-      method: mathjax
-      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
----
+#--------------------------------------------------------------#
+#--------------------Step 5: Data Visualization ---------------#
+#--------------------------------------------------------------#
 
-```{r include=FALSE}
-#knitr::opts_chunk$set(
-#   echo = FALSE,                 # don't show code
-#   warning = FALSE,              # don't show warnings
-#   message = FALSE,              # don't show messages (less serious warnings)
-#   cache = FALSE,                # set to TRUE to save results from last compilation
-#   fig.align = "center",         # center figures
-#   fig.width = ,                 # Adjust figure width
-#   fig.height = ,                # Adjust figure height
-#   attr.source = '.numberLines'  # add line numbers to code
-#   class.output = "numberLines"  # add line numbers to code output
-# )
-```
-
-```{css, echo=FALSE}
-h1.title, .subtitle.lead{
-  text-align: center;
-}
-
-div.quarto-title-meta{
-  display: block!important;
-  text-align: center;
-}
-```
-
-```{r include=FALSE}
 library(tidyverse)  # Load core packages: 
                     # ggplot2,   for data visualization.
                     # dplyr,     for data manipulation.
@@ -91,18 +33,15 @@ library(ggpubr)     # Automatically add p-values and significance levels  plots.
 library(sf)         # Geo-spatial vector manipulation: points, lines, polygons
 library(kableExtra) # Generate 90 % of complex/advanced/self-customized/beautiful tables
 library(latex2exp)  # Latex axis titles in ggplot2
-library(ellipse)    # Simultaneous confidence interval region to check C.I. of 2 slope parameters
 library(plotly)     # User interactive plots
-
 library(fields)     # Used for drawing heat maps
 
 set.seed(27)        # make random results reproducible
-setwd("C:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Code")
-```
 
-## Data Import
+WD <- getwd()
+setwd(WD)
+remove(WD)
 
-```{r Step_4.Data_Import}
 # Load Data
 load("clean_data/IPS_Offline.RData")
 load("clean_data/IPS_Online.RData")
@@ -116,10 +55,7 @@ load("clean_data/Fun-reshapeSS.RData")
 load("clean_data/Fun-selectTrain.Rdata")
 load("clean_data/Fun-findNN.Rdata")
 load("clean_data/Fun-predXY.Rdata")
-```
 
-## Data Visualization
-```{r Step_5.Data_Visualization}
 floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   
   plot(0, 0, xlim = c(0, 35), ylim = c(-3, 15), type = "n",
@@ -127,7 +63,7 @@ floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   box()
   if ( !is.null(AP) ) points(AP, pch = 15)
   if ( !is.null(trainPoints) )
-  points(trainPoints, pch = 19, col="grey", cex = 0.6)
+    points(trainPoints, pch = 19, col="grey", cex = 0.6)
   
   points(x = actualXY[, 1], y = actualXY[, 2], 
          pch = 19, cex = 0.8 )
@@ -187,17 +123,17 @@ floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   segments(33.8,-3.4, 33.8,14.2,
            lwd = 1, col = "black")
   polygon(x = c(3, 3, 7.9, 7.9),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   polygon(x = c(14, 14, 19.9, 19.9),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   polygon(x = c(27, 27, 31, 31),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   segments(-0.5,-1.2, -0.5,14.2,
            lwd = 1, col = "black")
   segments(-0.5,-1.2, 3, -1.2,
@@ -206,24 +142,14 @@ floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
            lwd = 1, col = "black")
 }
 
+
+#--------------------------------------------------------------#
+#-------------------------Step 5: Data Plot--------------------#
+#--------------------------------------------------------------#
+
 trainPoints <- IPS_trainingData[IPS_trainingData$angle == 0 & 
-                                IPS_trainingData$MAC == "00:0f:a3:39:e1:c0", c("posX", "posY")]
+                                  IPS_trainingData$MAC == "00:0f:a3:39:e1:c0", c("posX", "posY")]
 
-#Test function with 1 nearest neighbors and 3 orientations
-estXYk1 <- predXY(newSignals = IPS_testingData[ , 7:12], 
-                  newAngles = IPS_testingData[ , 5], 
-                  IPS_trainingData, numAngles = 3, k = 1)
-#Test function with 3 nearest neighbors and 3 orientations
-estXYk3 <- predXY(newSignals = IPS_testingData[ , 7:12], 
-                  newAngles = IPS_testingData[ , 5], 
-                  IPS_trainingData, numAngles = 3, k = 3)
-#Test function with 5 nearest neighbors and 3 orientations
-estXYk5 <- predXY(newSignals = IPS_testingData[ , 7:12], 
-                  newAngles = IPS_testingData[ , 5], 
-                  IPS_trainingData, numAngles = 5, k = 1)
-```
-
-```{r Step_6.Data_Plot}
 pdf(file="Plot-K1FloorPlan.pdf", width = 10, height = 7)
 oldPar <- par(mar = c(1, 1, 1, 1))
 floorErrorMap(estXYk1, IPS_testingData[ , c("posX","posY")], 
@@ -244,10 +170,11 @@ floorErrorMap(estXYk5, IPS_testingData[ , c("posX","posY")],
               trainPoints = trainPoints, AP = AP_Loc[2:3])
 par(oldPar)
 dev.off()
-```
 
-## RSSI Heatmap
-```{r}
+#------------------------------------------------------------------#
+#------------------------Step 7: RSSI Heat Map---------------------#
+#------------------------------------------------------------------#
+
 #View signal strength by location (pick an angle, say 0 degrees, and view a topographic heat map of signal strength)
 oneAPAngle <- subset(IPS_trainingData, MAC==AP_Loc[1, 1] & angle == 0)
 
@@ -282,6 +209,12 @@ surfaceSS_oneMac <- function(d, m) {
   points(AP_Loc$x, AP_Loc$y, pch=15, cex = 1)
 }
 
+surfaceSS_oneMac(IPS_trainingData, 1)
+surfaceSS_oneMac(IPS_trainingData, 2)
+surfaceSS_oneMac(IPS_trainingData, 3)
+surfaceSS_oneMac(IPS_trainingData, 4)
+surfaceSS_oneMac(IPS_trainingData, 5)
+surfaceSS_oneMac(IPS_trainingData, 6)
 
 #Tell R to plot matrix
 parCur <- par(mfrow=c(2,2), mar=rep(2,4))
@@ -323,18 +256,9 @@ mapply(surfaceSS,
        m =1, 
        a=315)
 par(parCur)
-```
 
-```{r}
-surfaceSS_oneMac(IPS_trainingData, 1)
-surfaceSS_oneMac(IPS_trainingData, 2)
-surfaceSS_oneMac(IPS_trainingData, 3)
-surfaceSS_oneMac(IPS_trainingData, 4)
-surfaceSS_oneMac(IPS_trainingData, 5)
-surfaceSS_oneMac(IPS_trainingData, 6)
-```
 
-```{r warning=FALSE}
+## Using Plotly Heat Map
 fig <- plot_ly(data = IPS_trainingData, 
                x = ~posX, y = ~posY, 
                type = 'scatter', 
@@ -342,27 +266,25 @@ fig <- plot_ly(data = IPS_trainingData,
                symbols = c('circle','circle','sqaure'),
                color = I("grey"),
                alpha = 0.65 ) %>% 
-     add_trace(data = IPS_testingData, 
-               x = ~posX, y = ~posY, 
-               type = 'scatter', 
-               mode = 'markers', 
-               color = I("black"),
-               alpha = 0.65 )%>% 
-     add_trace(data = oneAPAngle, 
-               x = ~posX, y = ~posY, z = ~avgSignal,   
-               type = "heatmap") %>% 
-     add_trace(data = AP_Loc, 
-               x = ~x, y = ~y, 
-               type = 'scatter', 
-               mode = 'markers', 
-               color = I('green'),
-               alpha = 0.65 ) %>% 
-        layout(showlegend = FALSE)
+  add_trace(data = IPS_testingData, 
+            x = ~posX, y = ~posY, 
+            type = 'scatter', 
+            mode = 'markers', 
+            color = I("black"),
+            alpha = 0.65 )%>% 
+  add_trace(data = oneAPAngle, 
+            x = ~posX, y = ~posY, z = ~avgSignal,   
+            type = "heatmap") %>% 
+  add_trace(data = AP_Loc, 
+            x = ~x, y = ~y, 
+            type = 'scatter', 
+            mode = 'markers', 
+            color = I('green'),
+            alpha = 0.65 ) %>% 
+  layout(showlegend = FALSE)
 
 fig
-```
 
-```{r}
 varList=c("posX", "posY")
 
 actualXY <- IPS_testingData[ , varList]
@@ -379,6 +301,3 @@ dist <- errorDist(est_data = estXYk1, act_data = actualXY)
 
 sum(dist)/length(dist)
 median(dist)
-```
-
-
