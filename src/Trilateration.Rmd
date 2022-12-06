@@ -1,0 +1,284 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+#setwd("~/R/projects/STAT510-F22")
+```
+
+```{r}
+Access.Points <- read_fwf("accessPointLocations.txt", skip = 1) # Read access point locations as a fixed width file
+colnames(Access.Points) <- c("MAC", "AP.pos.x", "AP.pos.y") # Set column names
+Access.Points
+```
+
+
+
+```{r}
+# Read in each line and replace all delimiters to commas
+read_lines("offline.final.trace.txt") %>% 
+  str_replace_all("[=;]", ",") -> data_raw
+
+# Each observation has a variable number of connected access points; determine the maximum.
+str_count(data_raw, pattern = ",") + 1 -> num_column
+(max(num_column) - 10) / 4 -> num_res
+
+# Generate column names based on number of observations
+# "drop" columns are remaining from the equals sign delimiter;
+# they will be dropped as part of the data cleanup.
+paste("Response", 1:num_res, sep = "") %>% 
+  outer(c(".MAC", ".SignalStrengthValue", ".Frequency", ".Mode"), paste0) %>% 
+  t() %>% as.vector() -> column_names
+c(
+  "drop.t", "Timestamp", "drop.id", "MACofScanDevice",
+  "drop.pos", "Scan.pos.x", "Scan.pos.y", "Scan.pos.z",
+  "drop.degree", "orientation", column_names
+) -> column_names
+
+# Add column names to the start of the "file" we read in from data_raw
+# This will _force_ the correct number of columns, even though the parser will
+#   still throw a warning.
+column_names %>% paste0(collapse = ",") %>% 
+  c(data_raw) %>% 
+  paste0(collapse = "\n") %>% 
+  read_csv(comment = "#", show_col_types = FALSE) -> data
+```
+
+```{r}
+# Helper functions
+dist <- function(x1, x2, y1, y2) {
+  sqrt((x1 - x2)^2 + (y1 - y2)^2)
+}
+
+cast <- function(x1, x2, y1, y2, angle) {
+  r <- angle * pi / 180
+  h <- c(-cos(r), sin(r))
+  v <- c(x2 - x1, y2 - y1) / dist(x1, x2, y1, y2)
+  acos(sum(h * v)) * 180 / pi
+}
+
+vcast <- Vectorize(cast)
+
+# Data cleaning first pass
+data %>%
+  select(!starts_with("drop")) %>%                                              # Drop = delimiter columns
+  pivot_longer(cols = starts_with("Response"),                                  # Pivot Response<> to a tall format
+               names_to = c("Response", ".value"),
+               names_pattern = "^Response(\\d+)\\.(.*)") %>% 
+  filter(Mode == 3) %>%                                                         # Only include access points in mode 3
+  mutate(
+    Timestamp = as_datetime(Timestamp/1000),                                    # Convert timestamp (ms) to datetime object
+    orientation.r = (45 * round(orientation / 45)) %% 360                       # Round orientation to nearest 45 degree increment
+  ) %>%
+  right_join(Access.Points) %>%                                                 # Use right_join to filter down only to the access points of interest
+  mutate(
+    distance = dist(Scan.pos.x, AP.pos.x, Scan.pos.y, AP.pos.y),                # Get distance from scan device to access point
+  ) %>%
+  group_by(Scan.pos.x, Scan.pos.y, orientation) %>%
+  mutate(Timestamp.init = min(Timestamp)) %>%                                   # For each position and orientation, record the starting timestamp
+  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC) %>%
+  mutate(                                                                       # Hampel Filter
+    lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
+    ub = median(SignalStrengthValue) + 3 * mad(SignalStrengthValue, constant = 1)
+  ) %>%
+  filter(SignalStrengthValue >= lb, SignalStrengthValue <= ub) %>%
+  ungroup() %>% 
+  select(                                                                       # Reorder
+    Timestamp.init, Timestamp, MACofScanDevice,
+    Scan.pos.x, Scan.pos.y, Scan.pos.z, orientation, orientation.r, Response,
+    MAC, SignalStrengthValue, Frequency, Mode, AP.pos.x, AP.pos.y, distance
+  ) -> test_data
+
+test_data %>%
+  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC, distance, AP.pos.x, AP.pos.y) %>%
+  summarize(median.Signal = median(SignalStrengthValue),
+            sd.Signal = sd(SignalStrengthValue)) %>%
+  ungroup() -> test_data.m
+```
+
+```{r}
+test_data.m %>%
+  ggplot(aes(x = median.Signal, y = distance)) + 
+  geom_point() + 
+  facet_wrap(.~MAC)
+```
+
+```{r}
+test_data.m %>%
+  filter(MAC == "00:14:bf:b1:97:90") %>%
+  filter(Scan.pos.x == 1) %>%
+  ggplot(aes(x = orientation.r, y = Scan.pos.y, fill = median.Signal)) + 
+  geom_tile() + 
+  scale_fill_viridis_c()
+```
+
+
+
+
+
+```{r}
+test_data %>%
+  filter(MAC == "00:14:bf:b1:97:81") %>%
+  filter(distance == min(distance),
+         orientation.r != 270) %>%
+  #ggplot(aes(x = SignalStrengthValue, y = orientation.r, group = orientation.r)) +
+  #geom_boxplot()
+  aov(SignalStrengthValue ~ orientation.r, data = .) %>% summary()
+
+
+
+test_data %>%
+  filter(MAC == "00:14:bf:b1:97:90") %>%
+  filter(distance == min(distance),
+         ) %>%
+  ggplot(aes(x = SignalStrengthValue, y = orientation.r, group = orientation.r)) +
+  geom_boxplot()
+  #aov(SignalStrengthValue ~ orientation.r, data = .) %>% summary()
+
+```
+
+
+
+
+```{r}
+unique(test_data.m$MAC)
+```
+
+
+
+
+```{r}
+MAC.names <- unique(test_data.m$MAC)
+lapply(MAC.names, function(x) {
+  test_data.m %>%
+    filter(MAC == x) %>%
+    lm(formula = distance ~ median.Signal, data = .)
+}) %>%
+  `names<-`(MAC.names) -> fit
+```
+
+
+```{r}
+# Read in each line and replace all delimiters to commas
+read_lines("online.final.trace.txt") %>% 
+  str_replace_all("[=;]", ",") -> data_raw.t
+
+# Each observation has a variable number of connected access points; determine the maximum.
+str_count(data_raw.t, pattern = ",") + 1 -> num_column
+(max(num_column) - 10) / 4 -> num_res
+
+# Generate column names based on number of observations
+# "drop" columns are remaining from the equals sign delimiter;
+# they will be dropped as part of the data cleanup.
+paste("Response", 1:num_res, sep = "") %>% 
+  outer(c(".MAC", ".SignalStrengthValue", ".Frequency", ".Mode"), paste0) %>% 
+  t() %>% as.vector() -> column_names
+c(
+  "drop.t", "Timestamp", "drop.id", "MACofScanDevice",
+  "drop.pos", "Scan.pos.x", "Scan.pos.y", "Scan.pos.z",
+  "drop.degree", "orientation", column_names
+) -> column_names
+
+# Add column names to the start of the "file" we read in from data_raw
+# This will _force_ the correct number of columns, even though the parser will
+#   still throw a warning.
+column_names %>% paste0(collapse = ",") %>% 
+  c(data_raw.t) %>% 
+  paste0(collapse = "\n") %>% 
+  read_csv(comment = "#", show_col_types = FALSE) -> data.t
+```
+
+```{r}
+data.t %>%
+  select(!starts_with("drop")) %>%                                              # Drop = delimiter columns
+  pivot_longer(cols = starts_with("Response"),                                  # Pivot Response<> to a tall format
+               names_to = c("Response", ".value"),
+               names_pattern = "^Response(\\d+)\\.(.*)") %>% 
+  filter(Mode == 3) %>%                                                         # Only include access points in mode 3
+  mutate(
+    Timestamp = as_datetime(Timestamp/1000),                                    # Convert timestamp (ms) to datetime object
+    orientation.r = (45 * round(orientation / 45)) %% 360                       # Round orientation to nearest 45 degree increment
+  ) %>%
+  right_join(Access.Points) %>%                                                 # Use right_join to filter down only to the access points of interest
+  mutate(
+    distance = dist(Scan.pos.x, AP.pos.x, Scan.pos.y, AP.pos.y),                # Get distance from scan device to access point
+  ) %>%
+  group_by(Scan.pos.x, Scan.pos.y, orientation) %>%
+  mutate(Timestamp.init = min(Timestamp)) %>%                                   # For each position and orientation, record the starting timestamp
+  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC) %>%
+  mutate(                                                                       # Hampel Filter
+    lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
+    ub = median(SignalStrengthValue) + 3 * mad(SignalStrengthValue, constant = 1)
+  ) %>%
+  filter(SignalStrengthValue >= lb, SignalStrengthValue <= ub) %>%
+  ungroup() %>% 
+  select(                                                                       # Reorder
+    Timestamp.init, Timestamp, MACofScanDevice,
+    Scan.pos.x, Scan.pos.y, Scan.pos.z, orientation, orientation.r, Response,
+    MAC, SignalStrengthValue, Frequency, Mode, AP.pos.x, AP.pos.y, distance
+  ) -> test_data
+
+test_data %>%
+  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC, distance, AP.pos.x, AP.pos.y) %>%
+  summarize(median.Signal = median(SignalStrengthValue),
+            sd.Signal = sd(SignalStrengthValue)) %>%
+  ungroup() -> test_data.m.t
+```
+
+```{r}
+lapply(MAC.names, function(x) {
+  test_data.m.t %>%
+    filter(MAC == x) %>%
+    mutate(pred_dist = predict(fit[[x]], cur_data()))
+}) %>%
+  do.call(rbind, .) -> test_data.m.t.pred
+```
+
+
+
+```{r}
+opt_dist <- function(data, pos.x, pos.y) {
+  #data contains relevant access points and distance to those access points
+  n <- dim(data)[1]
+  cbind(data, X = rep(pos.x, n), Y = rep(pos.y, n)) %>%
+    mutate(err = (dist(pos.x, AP.pos.x, pos.y, AP.pos.y) - distance)^2) %>%
+    summarise(err = sum(err)) %>% unlist
+}
+
+init.point <- c(mean(Access.Points$AP.pos.x), mean(Access.Points$AP.pos.y))
+
+#optim(
+#  par = init.point,
+#  fn = \(x){opt_dist(data = filter(test_data.m.t, Scan.pos.x == 0, Scan.pos.y == 0, orientation.r == 0), x[1], x[2])}
+#)$par
+```
+
+```{r}
+test_data.m.t.pred %>%
+  select(Scan.pos.x, Scan.pos.y, orientation.r) %>%
+  unique -> test_data.m.names
+test_data.m.names %>%
+  as.matrix %>%
+  apply(1, function(x){
+    filter(test_data.m.t.pred, Scan.pos.x == x[1], Scan.pos.y == x[2], orientation.r == x[3]) %>%
+      optim(
+        par = init.point, 
+        fn = \(y){opt_dist(data = ., y[1], y[2])}
+      ) %>%
+      `$`(par)
+  }) %>%
+  t() -> test_data.m.t.res
+```
+
+
+```{r}
+
+(cbind(test_data.m.names, test_data.m.t.res) %>%
+  mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`)))[30,]
+```
+
+
