@@ -11,7 +11,7 @@ library(ggplot2)
 ```
 
 ```{r}
-Access.Points <- read_fwf("accessPointLocations.txt", skip = 1) # Read access point locations as a fixed width file
+Access.Points <- read_fwf("../raw_data/accessPointLocations.txt", skip = 1) # Read access point locations as a fixed width file
 colnames(Access.Points) <- c("MAC", "AP.pos.x", "AP.pos.y") # Set column names
 Access.Points
 ```
@@ -20,7 +20,7 @@ Access.Points
 
 ```{r}
 # Read in each line and replace all delimiters to commas
-read_lines("offline.final.trace.txt") %>% 
+read_lines("../raw_data/offline.final.trace.txt") %>% 
   str_replace_all("[=;]", ",") -> data_raw
 
 # Each observation has a variable number of connected access points; determine the maximum.
@@ -164,7 +164,7 @@ lapply(MAC.names, function(x) {
 
 ```{r}
 # Read in each line and replace all delimiters to commas
-read_lines("online.final.trace.txt") %>% 
+read_lines("../raw_data/online.final.trace.txt") %>% 
   str_replace_all("[=;]", ",") -> data_raw.t
 
 # Each observation has a variable number of connected access points; determine the maximum.
