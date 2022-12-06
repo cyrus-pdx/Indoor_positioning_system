@@ -51,10 +51,13 @@ column_names %>% paste0(collapse = ",") %>%
 ```{r}
 # Helper functions
 dist <- function(x1, x2, y1, y2) {
+  # Get distance between (x1, y1) and (x2, y2)
   sqrt((x1 - x2)^2 + (y1 - y2)^2)
 }
 
 cast <- function(x1, x2, y1, y2, angle) {
+  # Get angle between device orientation and access point
+  # Unused
   r <- angle * pi / 180
   h <- c(-cos(r), sin(r))
   v <- c(x2 - x1, y2 - y1) / dist(x1, x2, y1, y2)
@@ -80,85 +83,91 @@ data %>%
   ) %>%
   group_by(Scan.pos.x, Scan.pos.y, orientation) %>%
   mutate(Timestamp.init = min(Timestamp)) %>%                                   # For each position and orientation, record the starting timestamp
-  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC) %>%
-  mutate(                                                                       # Hampel Filter
-    lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
-    ub = median(SignalStrengthValue) + 3 * mad(SignalStrengthValue, constant = 1)
-  ) %>%
-  filter(SignalStrengthValue >= lb, SignalStrengthValue <= ub) %>%
-  ungroup() %>% 
   select(                                                                       # Reorder
     Timestamp.init, Timestamp, MACofScanDevice,
     Scan.pos.x, Scan.pos.y, Scan.pos.z, orientation, orientation.r, Response,
     MAC, SignalStrengthValue, Frequency, Mode, AP.pos.x, AP.pos.y, distance
   ) -> test_data
+```
+
+```{r}
+test_data %>%
+  filter(Timestamp.init == test_data$Timestamp.init[150]) %>%
+  ggplot(
+    aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
+  ) + 
+  geom_line()
+```
+
+
+```{r}
+test_data %>%
+  mutate(                                                                       # half-Hampel Filter
+    lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
+    ub = median(SignalStrengthValue) + 3 * mad(SignalStrengthValue, constant = 1)
+  ) %>%
+  group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC) %>%
+  filter(SignalStrengthValue >= lb) %>%
+  ungroup()-> test_data
 
 test_data %>%
+  filter(Timestamp.init == test_data$Timestamp.init[200]) %>%
+  ggplot(
+    aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
+  ) + 
+  geom_line()
+```
+
+
+
+```{r}
+test_data %>%
+  # Generate median and sd signal strength variables
   group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC, distance, AP.pos.x, AP.pos.y) %>%
   summarize(median.Signal = median(SignalStrengthValue),
             sd.Signal = sd(SignalStrengthValue)) %>%
   ungroup() -> test_data.m
 ```
 
+
+
+
 ```{r}
 test_data.m %>%
-  ggplot(aes(x = median.Signal, y = distance)) + 
+  ggplot(aes(x = median.Signal, y = distance, color = MAC)) + 
   geom_point() + 
-  facet_wrap(.~MAC)
+  facet_wrap(.~MAC) + 
+  theme(legend.position = "None")
 ```
-
-```{r}
-test_data.m %>%
-  filter(MAC == "00:14:bf:b1:97:90") %>%
-  filter(Scan.pos.x == 1) %>%
-  ggplot(aes(x = orientation.r, y = Scan.pos.y, fill = median.Signal)) + 
-  geom_tile() + 
-  scale_fill_viridis_c()
-```
-
-
-
-
 
 ```{r}
 test_data %>%
+  # Test if orientation is statistically significant
   filter(MAC == "00:14:bf:b1:97:81") %>%
-  filter(distance == min(distance),
-         orientation.r != 270) %>%
-  #ggplot(aes(x = SignalStrengthValue, y = orientation.r, group = orientation.r)) +
-  #geom_boxplot()
+  filter(distance == min(distance)) %>%
   aov(SignalStrengthValue ~ orientation.r, data = .) %>% summary()
 
-
-
 test_data %>%
   filter(MAC == "00:14:bf:b1:97:90") %>%
-  filter(distance == min(distance),
-         ) %>%
+  filter(distance == min(distance)) %>%
   ggplot(aes(x = SignalStrengthValue, y = orientation.r, group = orientation.r)) +
   geom_boxplot()
-  #aov(SignalStrengthValue ~ orientation.r, data = .) %>% summary()
-
 ```
-
-
-
-
-```{r}
-unique(test_data.m$MAC)
-```
-
-
 
 
 ```{r}
 MAC.names <- unique(test_data.m$MAC)
+# For each mac address, generate a linear model
 lapply(MAC.names, function(x) {
   test_data.m %>%
     filter(MAC == x) %>%
     lm(formula = distance ~ median.Signal, data = .)
 }) %>%
   `names<-`(MAC.names) -> fit
+
+# Generate summary statistics for each model separately and together
+lapply(fit, summary)
+summary(lm(formula = distance ~ median.Signal, data = test_data.m))
 ```
 
 
@@ -210,11 +219,11 @@ data.t %>%
   group_by(Scan.pos.x, Scan.pos.y, orientation) %>%
   mutate(Timestamp.init = min(Timestamp)) %>%                                   # For each position and orientation, record the starting timestamp
   group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC) %>%
-  mutate(                                                                       # Hampel Filter
+  mutate(                                                                       # half-Hampel Filter
     lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
     ub = median(SignalStrengthValue) + 3 * mad(SignalStrengthValue, constant = 1)
   ) %>%
-  filter(SignalStrengthValue >= lb, SignalStrengthValue <= ub) %>%
+  filter(SignalStrengthValue >= lb) %>%
   ungroup() %>% 
   select(                                                                       # Reorder
     Timestamp.init, Timestamp, MACofScanDevice,
@@ -231,6 +240,7 @@ test_data %>%
 
 ```{r}
 lapply(MAC.names, function(x) {
+  # For each MAC address, generate predicted distances
   test_data.m.t %>%
     filter(MAC == x) %>%
     mutate(pred_dist = predict(fit[[x]], cur_data()))
@@ -242,13 +252,16 @@ lapply(MAC.names, function(x) {
 
 ```{r}
 opt_dist <- function(data, pos.x, pos.y) {
-  #data contains relevant access points and distance to those access points
+  # data contains relevant access points and distance to those access points
+  # Determine the distance between test point and access points,
+  # and measure the square distance error
   n <- dim(data)[1]
   cbind(data, X = rep(pos.x, n), Y = rep(pos.y, n)) %>%
     mutate(err = (dist(pos.x, AP.pos.x, pos.y, AP.pos.y) - distance)^2) %>%
     summarise(err = sum(err)) %>% unlist
 }
 
+# Initial point is at mean of all AP locations
 init.point <- c(mean(Access.Points$AP.pos.x), mean(Access.Points$AP.pos.y))
 
 #optim(
@@ -258,12 +271,16 @@ init.point <- c(mean(Access.Points$AP.pos.x), mean(Access.Points$AP.pos.y))
 ```
 
 ```{r}
+# Generate unique list of each position and orientation
 test_data.m.t.pred %>%
   select(Scan.pos.x, Scan.pos.y, orientation.r) %>%
   unique -> test_data.m.names
+
+
 test_data.m.names %>%
   as.matrix %>%
   apply(1, function(x){
+    # For each position / orientation, minimize error distance with opt_dist
     filter(test_data.m.t.pred, Scan.pos.x == x[1], Scan.pos.y == x[2], orientation.r == x[3]) %>%
       optim(
         par = init.point, 
@@ -276,9 +293,10 @@ test_data.m.names %>%
 
 
 ```{r}
-
+# Distances between predicted and actual locations
 (cbind(test_data.m.names, test_data.m.t.res) %>%
-  mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`)))[30,]
+  mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`))) %>%
+  rename("Scan.pos.x.pred" = `1`, Scan.pos.y.pred = `2`)
 ```
 
 
