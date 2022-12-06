@@ -282,6 +282,7 @@ test_data.m.names %>%
   apply(1, function(x){
     # For each position / orientation, minimize error distance with opt_dist
     filter(test_data.m.t.pred, Scan.pos.x == x[1], Scan.pos.y == x[2], orientation.r == x[3]) %>%
+      #filter(median.Signal <= median(median.Signal)) %>%
       optim(
         par = init.point, 
         fn = \(y){opt_dist(data = ., y[1], y[2])}
@@ -297,6 +298,7 @@ test_data.m.names %>%
 (cbind(test_data.m.names, test_data.m.t.res) %>%
   mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`))) %>%
   rename("Scan.pos.x.pred" = `1`, Scan.pos.y.pred = `2`) -> test_data.final
+test_data.final
 ```
 
 
@@ -397,4 +399,30 @@ floorErrorMap(test_data.final[1:2], test_data.final[4:5], AP = Access.Points[2:3
 
 
 
+```{r}
+test_data.final[30,]
+
+
+floorErrorMap(test_data.final[30, 1:2], test_data.final[30, 4:5], AP = Access.Points[2:3])
+
+test_data.m.t.pred %>%
+  filter(
+    Scan.pos.x == test_data.final[30,1],
+    Scan.pos.y == test_data.final[30,2],
+    orientation.r == test_data.final[30,3]
+  ) %>%
+  `[`(c(6,7,10)) %>% as.matrix() %>%
+  apply(1, function(x) {
+    plotrix::draw.circle(x["AP.pos.x"], x["AP.pos.y"], x["pred_dist"])
+  })
+```
+
+```{r}
+test_data.m.t.pred %>%
+  mutate(`Distance Error` = abs(pred_dist - distance)) %>%
+  ggplot(aes(x = `Distance Error` , fill = MAC)) +
+  geom_histogram(binwidth = 1) + 
+  facet_wrap(.~MAC) + 
+  theme(legend.position = "None")
+```
 
