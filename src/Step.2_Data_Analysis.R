@@ -1,0 +1,302 @@
+#----------------------------------------------------------#
+#------------------Step 4: Data Analysis ------------------#
+#----------------------------------------------------------#
+
+library(tidyverse)  # Load core packages: 
+                    # ggplot2,   for data visualization.
+                    # dplyr,     for data manipulation.
+                    # tidyr,     for data tidying.
+                    # purrr,     for functional programming.
+                    # tibble,    for tibbles, a modern re-imagining of data frames.
+                    # stringr,   for strings.
+                    # forcats,   for factors.
+                    # lubridate, for date/times.
+                    # readr,     for reading .csv, .tsv, and .fwf files.
+                    # readxl,    for reading .xls, and .xlxs files.
+                    # feather,   for sharing with Python and other languages.
+                    # haven,     for SPSS, SAS and Stata files.
+                    # httr,      for web apis.
+                    # jsonlite   for JSON.
+                    # rvest,     for web scraping.
+                    # xml2,      for XML.
+                    # modelr,    for modelling within a pipeline
+                    # broom,     for turning models into tidy data
+                    # hms,       for times.
+
+library(magrittr)   # Pipeline operator
+library(lobstr)     # Visualizing abstract syntax trees, stack trees, and object sizes
+library(pander)     # Exporting/converting complex pandoc documents, EX: df to Pandoc table
+library(ggforce)    # More plot functions on top of ggplot2
+library(ggpubr)     # Automatically add p-values and significance levels  plots. 
+                    # Arrange and annotate multiple plots on the same page. 
+                    # Change graphical parameters such as colors and labels.
+library(sf)         # Geo-spatial vector manipulation: points, lines, polygons
+library(kableExtra) # Generate 90 % of complex/advanced/self-customized/beautiful tables
+library(latex2exp)  # Latex axis titles in ggplot2
+library(ellipse)    # Simultaneous confidence interval region to check C.I. of 2 slope parameters
+library(plotly)     # User interactive plots
+
+set.seed(27)        # make random results reproducible
+
+WD <- getwd()
+setwd(WD)
+remove(WD)
+
+## Data Import
+load("clean_data/IPS_Offline.RData")
+load("clean_data/IPS_Online.RData")
+load("clean_data/IPS_trainingData.RData")
+load("clean_data/IPS_testingData.RData")
+load("clean_data/IPS_AP_Locations.RData")
+
+# Load Functions
+load("clean_data/Fun-Ori2Angle.Rdata")
+
+
+### Selected TrainSS Example
+# For m angles, find the closest desired orientations to the new observations
+m <- 3
+angleNewObs <- -45
+refs <- seq(0, by=45, length=8)
+nearestAngle <- Ori.to.Angle(angleNewObs)
+
+if ( m%%2 == 1) {
+  angles = seq(-45*(m-1)/2, 45*(m-1)/2, length=m)
+} else {
+  m = m + 1
+  angles = seq(-45*(m-1)/2, 45*(m-1)/2, length=m)
+  if (sign(angleNewObs - nearestAngle) > -1)
+    angles = angles[-1]
+  else
+    angles = angles[-m]
+}
+
+# Map the angles to values in refs (-45 maps to 315 and 405 maps to 45)
+angles <- angles + nearestAngle
+angles[angles < 0] <- angles [angles <0] + 360
+angles[angles > 360] <- angles[angles >360] - 360
+
+trainSubset <- IPS_trainingData[IPS_trainingData$angle %in% angles, ]
+
+# Aggregate RSSI with respect to 6 APs
+reshapeSS <- function (data, varSignal = "signal", keepVars = c("posXY", "orientation", "direction")) {
+  byLocation = with(data, by(data, list(posXY),
+                             function(x) {
+                               ans = x[1, keepVars]
+                               avgSS = tapply(x[,varSignal], x$MAC, mean)
+                               y = matrix(avgSS, nrow=1, ncol=6, dimnames = list(ans$posXY, names(avgSS)))
+                               cbind(ans, y)
+                             }))
+  newDataSS <- do.call("rbind", byLocation)
+  return(newDataSS)
+}
+
+# Summarize and reshape trainSubset
+trainSS <- reshapeSS(trainSubset, varSignal = "avgSignal")
+
+
+### Function for Selected TrainSS 
+#Aggregate RSSI with respect to 6 APs
+reshapeSS <- function (data, varSignal = "signal", keepVars = c("posXY", "posX", "posY")) {
+  byLocation = with(data, by(data, list(posXY),
+                             function(x) {
+                               ans = x[1, keepVars]
+                               avgSS = tapply(x[,varSignal], x$MAC, mean)
+                               y = matrix(avgSS, nrow=1, ncol=6, dimnames = list(ans$posXY, names(avgSS)))
+                               cbind(ans, y)
+                             }))
+  newDataSS <- do.call("rbind", byLocation)
+  return(newDataSS)
+}
+
+selectTrain <- function(angle.newObs, data, m){
+  # m is the number of angles to keep between 1 and 5
+  refs = seq(0, by = 45, length  = 8)
+  nearestAngle = Ori.to.Angle(angle.newObs)
+  
+  if (m %% 2 == 1) 
+    angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+  else {
+    m = m + 1
+    angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+    if (sign(angle.newObs - nearestAngle) > -1) 
+      angles = angles[ -1 ]
+    else 
+      angles = angles[ -m ]
+  }
+  angles = angles + nearestAngle
+  angles[angles < 0] = angles[ angles < 0 ] + 360
+  angles[angles > 360] = angles[ angles > 360 ] - 360
+  angles = sort(angles) 
+  
+  trainSubset = data[ data$angle %in% angles, ]
+  reshapeSS(trainSubset, varSignal = "avgSignal")
+}
+
+# Test function with new obs angle 130
+train.at.angle <- selectTrain(angle.newObs=130, data=IPS_trainingData, m=3)
+# length(train130[[1]])
+# [1] 166 #Indeed we have 166 locations recorded
+
+### KNN Estimation Example
+#Build function findNN that finds the k nearest neighbors from any point
+#Parameters are a numeric vector of 6 new signal strengths and the return value from selectTrain()
+
+#Function returns the locations of the training observations in order of closeness to the new observation's signal strength
+findNN <- function(newSignal, trainSubset) {
+  diffs = apply(trainSubset[ , 4:9], 1, function(x) x - newSignal)
+  dists = apply(diffs, 2, function(x) sqrt(sum(x^2)))
+  closest = order(dists)
+  return(trainSubset[closest, 1:3])
+}
+
+#Distance Weighted average the first k locations returned by findNN to estimate location of new observation
+predXY = function(newSignals, newAngles, trainData, 
+                  numAngles = 1, k = 3){
+  
+  closeXY = list(length = nrow(newSignals))
+  
+  for (i in 1:nrow(newSignals)) {
+    trainSS = selectTrain(newAngles[i], trainData, m = numAngles)
+    closeXY[[i]] = 
+      findNN(newSignal = as.numeric(newSignals[i, ]), trainSS)
+  }
+  
+  estXY = lapply(closeXY, 
+                 function(x) sapply(x[ , 2:3], 
+                                    function(x) mean(x[1:k])))
+  estXY = do.call("rbind", estXY)
+  return(estXY)
+}
+
+#Test function with 1 nearest neighbors and 3 orientations
+estXYk1 <- predXY(newSignals = IPS_testingData[ , 7:12], 
+                  newAngles = IPS_testingData[ , 5], 
+                  IPS_trainingData, numAngles = 3, k = 1)
+#Test function with 3 nearest neighbors and 3 orientations
+estXYk3 <- predXY(newSignals = IPS_testingData[ , 7:12], 
+                  newAngles = IPS_testingData[ , 5], 
+                  IPS_trainingData, numAngles = 3, k = 3)
+#Test function with 5 nearest neighbors and 3 orientations
+estXYk5 <- predXY(newSignals = IPS_testingData[ , 7:12], 
+                  newAngles = IPS_testingData[ , 5], 
+                  IPS_trainingData, numAngles = 5, k = 1)
+
+#Map of actual vs predicted locations of new signals shows model accuracy
+#K=3 more accurate than k=1 because errors are shorter distance and less problematic because they follow the hallways
+#Check website for plotting code
+
+#Calculate SSE to measure fit
+calcError <- function(estXY, actualXY) {
+  sum(rowSums( (estXY - actualXY)^2) )
+}
+actualXY <- IPS_testingData[ , c("posX", "posY")]
+sapply(list(estXYk1, estXYk3, estXYk5), calcError, actualXY)
+
+
+### Find Optimal k
+#Use k-fold cross validation to find optimal k for KNN
+
+#Perform k-fold cross validation with k=11 so each fold has 15 locations randomly selected
+v <- 11
+permuteLocs <- sample(unique(IPS_trainingData$posXY))
+permuteLocs <- matrix(permuteLocs, ncol = v, 
+                      nrow = floor(length(permuteLocs)/v))
+
+testFold <- subset(IPS_trainingData, posXY %in% permuteLocs[ , 1])
+
+reshapeSS <- function(data, varSignal = "RSSI", 
+                      keepVars = c("posXY", "posX","posY"),
+                      sampleAngle = FALSE, 
+                      refs = seq(0, 315, by = 45)) {
+  byLocation =
+    with(data, by(data, list(posXY), 
+                  function(x) {
+                    if (sampleAngle) {
+                      x = x[x$angle == sample(refs, size = 1), ]}
+                    ans = x[1, keepVars]
+                    avgSS = tapply(x[ , varSignal ], x$MAC, mean)
+                    y = matrix(avgSS, nrow = 1, ncol = 6,
+                               dimnames = list(ans$posXY,
+                                               names(avgSS)))
+                    cbind(ans, y)
+                  }))
+  
+  newDataSS = do.call("rbind", byLocation)
+  return(newDataSS)
+}
+
+keepVars <- c("posXY", "posX","posY", "orientation", "angle", "direction")
+
+testCVSummary <- reshapeSS(IPS_offline_Data, keepVars = keepVars, 
+                           sampleAngle = TRUE)
+
+testFold <- subset(testCVSummary, 
+                   posXY %in% permuteLocs[ , 1])
+
+trainFold <- subset(IPS_trainingData,
+                    posXY %in% permuteLocs[ , -1])
+
+estFold <- predXY(newSignals = testFold[ , 7:12], 
+                  newAngles = testFold[ , 4], 
+                  trainFold, numAngles = 3, k = 3)
+
+actualFold <- testFold[ , c("posX", "posY")]
+calcError(estFold, actualFold)
+
+
+### Function for k-Fold CV
+#Wrap the code above into loops over the folds and number of neighbors for K=20
+K <- 30
+err <- rep(0, K)
+
+for (j in 1:v) {
+  testFold = subset(testCVSummary, 
+                    posXY %in% permuteLocs[ , j])
+  trainFold = subset(IPS_trainingData,
+                     posXY %in% permuteLocs[ , -j])
+  actualFold = testFold[ , c("posX", "posY")]
+  
+  for (k in 1:K) {
+    estFold = predXY(newSignals = testFold[ , 7:12],
+                     newAngles = testFold[ , 4], 
+                     trainFold, numAngles = 3, k = k)
+    err[k] = err[k] + calcError(estFold, actualFold)
+  }
+}
+
+pdf(file = "Geo_CVChoiceOfK.pdf", width = 10, height = 6)
+oldPar = par(mar = c(4, 3, 1, 1))
+plot(y = err, x = (1:K),  type = "l", lwd= 2,
+     ylim = c(1200, 2100),
+     xlab = "Number of Neighbors",
+     ylab = "Sum of Square Errors")
+
+rmseMin <- min(err)
+kMin <- which(err == rmseMin)[1]
+segments(x0 = 0, x1 = kMin, y0 = rmseMin, col = gray(0.4), 
+         lty = 2, lwd = 2)
+segments(x0 = kMin, x1 = kMin, y0 = 1100,  y1 = rmseMin, 
+         col = grey(0.4), lty = 2, lwd = 2)
+
+#mtext(kMin, side = 1, line = 1, at = kMin, col = grey(0.4))
+text(x = kMin - 2, y = rmseMin + 40, 
+     label = as.character(round(rmseMin)), col = grey(0.4))
+par(oldPar)
+dev.off()
+
+#Since errors level out at k=5 and higher, use k= and apply it to training and test data
+estXYk5 <- predXY(newSignals = testSummary[ , 6:11], 
+                  newAngles = testSummary[ , 4], 
+                  trainSummary, numAngles = 3, k = 5)
+
+#Tally the errors
+calcError(estXYk5, actualXY)
+
+#Notice that number of angles is not optimized through cross validation, but it could be for a better model
+
+## Data Saving
+save(reshapeSS,   file = "clean_data/Fun-reshapeSS.RData")
+save(selectTrain, file = "clean_data/Fun-selectTrain.RData")
+save(findNN,      file = "clean_data/Fun-findNN.RData")
+save(predXY,      file = "clean_data/Fun-predXY.RData")
