@@ -161,13 +161,13 @@ MAC.names <- unique(test_data.m$MAC)
 lapply(MAC.names, function(x) {
   test_data.m %>%
     filter(MAC == x) %>%
-    lm(formula = distance ~ median.Signal, data = .)
+    lm(formula = sqrt(distance) ~ median.Signal, data = .)
 }) %>%
   `names<-`(MAC.names) -> fit
 
 # Generate summary statistics for each model separately and together
 lapply(fit, summary)
-summary(lm(formula = distance ~ median.Signal, data = test_data.m))
+summary(lm(formula = sqrt(distance) ~ median.Signal, data = test_data.m))
 ```
 
 
@@ -243,7 +243,7 @@ lapply(MAC.names, function(x) {
   # For each MAC address, generate predicted distances
   test_data.m.t %>%
     filter(MAC == x) %>%
-    mutate(pred_dist = predict(fit[[x]], cur_data()))
+    mutate(pred_dist = predict(fit[[x]], cur_data())^2)
 }) %>%
   do.call(rbind, .) -> test_data.m.t.pred
 ```
