@@ -92,7 +92,7 @@ data %>%
 
 ```{r}
 test_data %>%
-  filter(Timestamp.init == test_data$Timestamp.init[150]) %>%
+  filter(Timestamp.init == unique(test_data$Timestamp.init)[9]) %>%
   ggplot(
     aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
   ) + 
@@ -111,7 +111,7 @@ test_data %>%
   ungroup()-> test_data
 
 test_data %>%
-  filter(Timestamp.init == test_data$Timestamp.init[200]) %>%
+  filter(Timestamp.init == unique(test_data$Timestamp.init)[9]) %>%
   ggplot(
     aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
   ) + 
@@ -257,7 +257,7 @@ opt_dist <- function(data, pos.x, pos.y) {
   # and measure the square distance error
   n <- dim(data)[1]
   cbind(data, X = rep(pos.x, n), Y = rep(pos.y, n)) %>%
-    mutate(err = (dist(pos.x, AP.pos.x, pos.y, AP.pos.y) - distance)^2) %>%
+    mutate(err = (dist(pos.x, AP.pos.x, pos.y, AP.pos.y) - pred_dist)^2) %>%
     summarise(err = sum(err)) %>% unlist
 }
 
@@ -415,6 +415,20 @@ test_data.m.t.pred %>%
   apply(1, function(x) {
     plotrix::draw.circle(x["AP.pos.x"], x["AP.pos.y"], x["pred_dist"])
   })
+
+
+
+floorErrorMap(test_data.final[30, 1:2], test_data.final[30, 4:5], AP = Access.Points[2:3])
+test_data.m.t.pred %>%
+  filter(
+    Scan.pos.x == test_data.final[30,1],
+    Scan.pos.y == test_data.final[30,2],
+    orientation.r == test_data.final[30,3]
+  ) %>%
+  `[`(c(6,7,5)) %>% as.matrix() %>%
+  apply(1, function(x) {
+    plotrix::draw.circle(x["AP.pos.x"], x["AP.pos.y"], x["distance"])
+  })
 ```
 
 ```{r}
@@ -424,5 +438,12 @@ test_data.m.t.pred %>%
   geom_histogram(binwidth = 1) + 
   facet_wrap(.~MAC) + 
   theme(legend.position = "None")
+```
+
+
+
+```{r}
+median(test_data.final$err)
+mean(test_data.final$err)
 ```
 
