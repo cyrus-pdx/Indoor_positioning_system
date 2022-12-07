@@ -57,6 +57,6 @@
  ┣ 📄README.md
  ┣ 📄ips-ref.md                          // Sources for paper
  ┗ 📄agenda.md                          / Members' role
- ```
+```
 
- **PS**: Please go to [`agenda.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/agenda.md) to update yourselves or check others' update.
+ **PS**: Please go to [`Agenda.md`](https://github.com/cyrus-pdx/Indoor_positioning_system/blob/main/agenda.md) to update yourselves or check others' update.
