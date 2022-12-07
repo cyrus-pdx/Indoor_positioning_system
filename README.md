@@ -41,10 +41,10 @@
 
 **Objective**:
 - [x] 1. Data Cleaning 
-- [x] 2. Data Analysis (🛠️ in progress...)
+- [x] 2. Data Analysis
 - [x] 3. Data Visualizations 
-- [ ] 4. Presentation 
-- [ ] 5. Report
+- [x] 4. Presentation 
+- [x] 5. Report
 
 <p align="right">
 <a href="https://github.com/cyrus-pdx/Indoor_positioning_system/tree/SingSong" target="_blank">
