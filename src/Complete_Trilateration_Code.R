@@ -1,24 +1,15 @@
----
-title: "R Notebook"
-output: html_notebook
----
-
-```{r}
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
 #setwd("~/R/projects/STAT510-F22")
-```
 
-```{r}
+
 Access.Points <- read_fwf("../raw_data/accessPointLocations.txt", skip = 1) # Read access point locations as a fixed width file
 colnames(Access.Points) <- c("MAC", "AP.pos.x", "AP.pos.y") # Set column names
 Access.Points
-```
 
 
 
-```{r}
 # Read in each line and replace all delimiters to commas
 read_lines("../raw_data/offline.final.trace.txt") %>% 
   str_replace_all("[=;]", ",") -> data_raw
@@ -46,9 +37,9 @@ column_names %>% paste0(collapse = ",") %>%
   c(data_raw) %>% 
   paste0(collapse = "\n") %>% 
   read_csv(comment = "#", show_col_types = FALSE) -> data
-```
 
-```{r}
+
+
 # Helper functions
 dist <- function(x1, x2, y1, y2) {
   # Get distance between (x1, y1) and (x2, y2)
@@ -88,19 +79,19 @@ data %>%
     Scan.pos.x, Scan.pos.y, Scan.pos.z, orientation, orientation.r, Response,
     MAC, SignalStrengthValue, Frequency, Mode, AP.pos.x, AP.pos.y, distance
   ) -> test_data
-```
 
-```{r}
+
+
 test_data %>%
   filter(Timestamp.init == unique(test_data$Timestamp.init)[9]) %>%
   ggplot(
     aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
   ) + 
   geom_line()
-```
 
 
-```{r}
+
+
 test_data %>%
   mutate(                                                                       # half-Hampel Filter
     lb = median(SignalStrengthValue) - 3 * mad(SignalStrengthValue, constant = 1),
@@ -116,31 +107,31 @@ test_data %>%
     aes(x = Timestamp, y = SignalStrengthValue, color = MAC, group = MAC)
   ) + 
   geom_line()
-```
 
 
 
-```{r}
+
+
 test_data %>%
   # Generate median and sd signal strength variables
   group_by(Scan.pos.x, Scan.pos.y, orientation.r, MAC, distance, AP.pos.x, AP.pos.y) %>%
   summarize(median.Signal = median(SignalStrengthValue),
             sd.Signal = sd(SignalStrengthValue)) %>%
   ungroup() -> test_data.m
-```
 
 
 
 
-```{r}
+
+
 test_data.m %>%
   ggplot(aes(x = median.Signal, y = distance, color = MAC)) + 
   geom_point() + 
   facet_wrap(.~MAC) + 
   theme(legend.position = "None")
-```
 
-```{r}
+
+
 test_data %>%
   # Test if orientation is statistically significant
   filter(MAC == "00:14:bf:b1:97:81") %>%
@@ -152,10 +143,10 @@ test_data %>%
   filter(distance == min(distance)) %>%
   ggplot(aes(x = SignalStrengthValue, y = orientation.r, group = orientation.r)) +
   geom_boxplot()
-```
 
 
-```{r}
+
+
 MAC.names <- unique(test_data.m$MAC)
 # For each mac address, generate a linear model
 lapply(MAC.names, function(x) {
@@ -168,10 +159,10 @@ lapply(MAC.names, function(x) {
 # Generate summary statistics for each model separately and together
 lapply(fit, summary)
 summary(lm(formula = sqrt(distance) ~ median.Signal, data = test_data.m))
-```
 
 
-```{r}
+
+
 # Read in each line and replace all delimiters to commas
 read_lines("../raw_data/online.final.trace.txt") %>% 
   str_replace_all("[=;]", ",") -> data_raw.t
@@ -199,9 +190,9 @@ column_names %>% paste0(collapse = ",") %>%
   c(data_raw.t) %>% 
   paste0(collapse = "\n") %>% 
   read_csv(comment = "#", show_col_types = FALSE) -> data.t
-```
 
-```{r}
+
+
 data.t %>%
   select(!starts_with("drop")) %>%                                              # Drop = delimiter columns
   pivot_longer(cols = starts_with("Response"),                                  # Pivot Response<> to a tall format
@@ -236,9 +227,9 @@ test_data %>%
   summarize(median.Signal = median(SignalStrengthValue),
             sd.Signal = sd(SignalStrengthValue)) %>%
   ungroup() -> test_data.m.t
-```
 
-```{r}
+
+
 lapply(MAC.names, function(x) {
   # For each MAC address, generate predicted distances
   test_data.m.t %>%
@@ -246,11 +237,11 @@ lapply(MAC.names, function(x) {
     mutate(pred_dist = predict(fit[[x]], cur_data())^2)
 }) %>%
   do.call(rbind, .) -> test_data.m.t.pred
-```
 
 
 
-```{r}
+
+
 opt_dist <- function(data, pos.x, pos.y) {
   # data contains relevant access points and distance to those access points
   # Determine the distance between test point and access points,
@@ -268,9 +259,9 @@ init.point <- c(mean(Access.Points$AP.pos.x), mean(Access.Points$AP.pos.y))
 #  par = init.point,
 #  fn = \(x){opt_dist(data = filter(test_data.m.t, Scan.pos.x == 0, Scan.pos.y == 0, orientation.r == 0), x[1], x[2])}
 #)$par
-```
 
-```{r}
+
+
 # Generate unique list of each position and orientation
 test_data.m.t.pred %>%
   select(Scan.pos.x, Scan.pos.y, orientation.r) %>%
@@ -290,23 +281,23 @@ test_data.m.names %>%
       `$`(par)
   }) %>%
   t() -> test_data.m.t.res
-```
 
 
-```{r}
+
+
 # Distances between predicted and actual locations
 (cbind(test_data.m.names, test_data.m.t.res) %>%
-  mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`))) %>%
+    mutate(err = dist(Scan.pos.x, `1`, Scan.pos.y, `2`))) %>%
   rename("Scan.pos.x.pred" = `1`, Scan.pos.y.pred = `2`) -> test_data.final
 test_data.final
-```
+
 
 
 
 General Visualizations below this point
 
 
-```{r}
+
 floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   
   plot(0, 0, xlim = c(0, 35), ylim = c(-3, 15), type = "n",
@@ -374,17 +365,17 @@ floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   segments(33.8,-3.4, 33.8,14.2,
            lwd = 1, col = "black")
   polygon(x = c(3, 3, 7.9, 7.9),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   polygon(x = c(14, 14, 19.9, 19.9),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   polygon(x = c(27, 27, 31, 31),  
-        y = c(4, 6.4, 6.4, 4),    
-        border = "black",             
-        lwd = 1)                   
+          y = c(4, 6.4, 6.4, 4),    
+          border = "black",             
+          lwd = 1)                   
   segments(-0.5,-1.2, -0.5,14.2,
            lwd = 1, col = "black")
   segments(-0.5,-1.2, 3, -1.2,
@@ -395,11 +386,10 @@ floorErrorMap <- function(estXY, actualXY, trainPoints = NULL, AP = NULL){
 
 
 floorErrorMap(test_data.final[1:2], test_data.final[4:5], AP = Access.Points[2:3])
-```
 
 
 
-```{r}
+
 test_data.final[30,]
 
 
@@ -429,18 +419,15 @@ test_data.m.t.pred %>%
   apply(1, function(x) {
     plotrix::draw.circle(x["AP.pos.x"], x["AP.pos.y"], x["distance"])
   })
-```
 
-```{r}
 test_data.m.t.pred %>%
   mutate(`Distance Error` = abs(pred_dist - distance)) %>%
   ggplot(aes(x = `Distance Error` , fill = MAC)) +
   geom_histogram(binwidth = 1) + 
   facet_wrap(.~MAC) + 
   theme(legend.position = "None")
-```
 
-```{r}
+
 median(test_data.final$err)
 mean(test_data.final$err)
-```
+
