@@ -312,6 +312,7 @@ fig <- plot_ly(data = IPS_trainingData,
 
 fig
 
+
 varList=c("posX", "posY")
 actualXY <- IPS_testingData[ , varList]
 
