@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.26)  7 DEC 2022 20:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.26)  7 DEC 2022 22:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -452,7 +452,14 @@ Package hyperref Info: Option `colorlinks' set `false' on input line 24.
 File: l3backend-pdftex.def 2022-10-26 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count302
 \l__pdf_internal_box=\box66
-) (c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.aux)
+) (c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.aux
+
+LaTeX Warning: Label `fig: K-Fold CV' multiply defined.
+
+
+LaTeX Warning: Label `fig: K-Fold CV' multiply defined.
+
+)
 \openout1 = `Paper.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
@@ -503,106 +510,115 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 41.
  (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-<img/heatMap_allMac_8Angles/Mac-1.png, id=4, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-1.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-1.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-1.png  used on input line 73.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-<img/heatMap_allMac_8Angles/Mac-2.png, id=5, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-2.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-2.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-2.png  used on input line 74.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-<img/heatMap_allMac_8Angles/Mac-3.png, id=6, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-3.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-3.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-3.png  used on input line 75.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-<img/heatMap_allMac_8Angles/Mac-4.png, id=7, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-4.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-4.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-4.png  used on input line 76.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-<img/heatMap_allMac_8Angles/Mac-5.png, id=8, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-5.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-5.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-5.png  used on input line 77.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-<img/heatMap_allMac_8Angles/Mac-6.png, id=9, 518.6878pt x 477.28313pt>
-File: img/heatMap_allMac_8Angles/Mac-6.png Graphic file (type png)
-<use img/heatMap_allMac_8Angles/Mac-6.png>
-Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-6.png  used on input line 78.
-(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
-
-
-./Paper.tex:94: LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.94 \newline
-             
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-[1{c:/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+) [1{c:/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
 ]
-<img/K-Fold CV.png, id=24, 913.25566pt x 365.49046pt>
+<img/heatMap_allMac_8Angles/Mac-1.png, id=16, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-1.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-1.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-1.png  used on input line 79.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+<img/heatMap_allMac_8Angles/Mac-2.png, id=17, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-2.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-2.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-2.png  used on input line 80.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+<img/heatMap_allMac_8Angles/Mac-3.png, id=18, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-3.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-3.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-3.png  used on input line 81.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+<img/heatMap_allMac_8Angles/Mac-4.png, id=19, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-4.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-4.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-4.png  used on input line 82.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+<img/heatMap_allMac_8Angles/Mac-5.png, id=20, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-5.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-5.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-5.png  used on input line 83.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+<img/heatMap_allMac_8Angles/Mac-6.png, id=21, 518.6878pt x 477.28313pt>
+File: img/heatMap_allMac_8Angles/Mac-6.png Graphic file (type png)
+<use img/heatMap_allMac_8Angles/Mac-6.png>
+Package pdftex.def Info: img/heatMap_allMac_8Angles/Mac-6.png  used on input line 84.
+(pdftex.def)             Requested size: 123.84283pt x 113.9531pt.
+ [2 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-1.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-2.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-3.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-4.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-5.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-6.png (PNG copy)>]
+<img/distance_against_median_signal.png, id=35, 529.0164pt x 326.6604pt>
+File: img/distance_against_median_signal.png Graphic file (type png)
+<use img/distance_against_median_signal.png>
+Package pdftex.def Info: img/distance_against_median_signal.png  used on input line 104.
+(pdftex.def)             Requested size: 252.0pt x 155.6089pt.
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 111.
+ (c:/texlive/2022/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+)
+
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 114.
+
+[3 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/distance_against_median_signal.png (PNG copy)>]
+<img/Distance_error_hist.png, id=47, 330.033pt x 204.0423pt>
+File: img/Distance_error_hist.png Graphic file (type png)
+<use img/Distance_error_hist.png>
+Package pdftex.def Info: img/Distance_error_hist.png  used on input line 132.
+(pdftex.def)             Requested size: 252.0pt x 155.79605pt.
+<img/circles_real4.png, id=48, 1505.625pt x 1053.9375pt>
+File: img/circles_real4.png Graphic file (type png)
+<use img/circles_real4.png>
+Package pdftex.def Info: img/circles_real4.png  used on input line 146.
+(pdftex.def)             Requested size: 252.0pt x 176.40094pt.
+<img/Multilateration_Error.png, id=49, 1505.625pt x 1053.9375pt>
+File: img/Multilateration_Error.png Graphic file (type png)
+<use img/Multilateration_Error.png>
+Package pdftex.def Info: img/Multilateration_Error.png  used on input line 154.
+(pdftex.def)             Requested size: 252.0pt x 176.40094pt.
+ [4 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Distance_error_hist.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/circles_real4.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Multilateration_Error.png>]
+<img/K-Fold CV.png, id=66, 913.25566pt x 365.49046pt>
 File: img/K-Fold CV.png Graphic file (type png)
 <use img/K-Fold CV.png>
-Package pdftex.def Info: img/K-Fold CV.png  used on input line 111.
+Package pdftex.def Info: img/K-Fold CV.png  used on input line 176.
 (pdftex.def)             Requested size: 252.0pt x 100.84758pt.
-<img/Plot-k-fold_CV-1.png, id=26, 794.97pt x 614.295pt>
+<img/Plot-k-fold_CV-1.png, id=68, 794.97pt x 614.295pt>
 File: img/Plot-k-fold_CV-1.png Graphic file (type png)
 <use img/Plot-k-fold_CV-1.png>
-Package pdftex.def Info: img/Plot-k-fold_CV-1.png  used on input line 117.
+Package pdftex.def Info: img/Plot-k-fold_CV-1.png  used on input line 182.
 (pdftex.def)             Requested size: 252.0pt x 194.72247pt.
-<img/Plot-K1FloorPlan-1.png, id=27, 722.7pt x 505.89pt>
+<img/Plot-K1FloorPlan-1.png, id=69, 722.7pt x 505.89pt>
 File: img/Plot-K1FloorPlan-1.png Graphic file (type png)
 <use img/Plot-K1FloorPlan-1.png>
-Package pdftex.def Info: img/Plot-K1FloorPlan-1.png  used on input line 124.
+Package pdftex.def Info: img/Plot-K1FloorPlan-1.png  used on input line 189.
 (pdftex.def)             Requested size: 252.0pt x 176.40028pt.
-<img/Plot-K3FloorPlan-1.png, id=28, 722.7pt x 505.89pt>
+<img/Plot-K3FloorPlan-1.png, id=70, 722.7pt x 505.89pt>
 File: img/Plot-K3FloorPlan-1.png Graphic file (type png)
 <use img/Plot-K3FloorPlan-1.png>
-Package pdftex.def Info: img/Plot-K3FloorPlan-1.png  used on input line 130.
+Package pdftex.def Info: img/Plot-K3FloorPlan-1.png  used on input line 195.
 (pdftex.def)             Requested size: 252.0pt x 176.40028pt.
-<img/Plot-K5FloorPlan-1.png, id=29, 722.7pt x 505.89pt>
+<img/Plot-K5FloorPlan-1.png, id=71, 722.7pt x 505.89pt>
 File: img/Plot-K5FloorPlan-1.png Graphic file (type png)
 <use img/Plot-K5FloorPlan-1.png>
-Package pdftex.def Info: img/Plot-K5FloorPlan-1.png  used on input line 136.
+Package pdftex.def Info: img/Plot-K5FloorPlan-1.png  used on input line 201.
 (pdftex.def)             Requested size: 252.0pt x 176.40028pt.
-
-./Paper.tex:148: You can't use `macro parameter character #' in restricted horizontal mode.
+ [5 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/K-Fold CV.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-k-fold_CV-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K1FloorPlan-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K3FloorPlan-1.png>]
+./Paper.tex:213: You can't use `macro parameter character #' in restricted horizontal mode.
 <recently read> ##
                   
-l.148   #
+l.213   #
           of $k$   & Average Error Distance & Median Error Distance \\ \hline
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-<img/Multilateration_Error.png, id=30, 1505.625pt x 1053.9375pt>
 File: img/Multilateration_Error.png Graphic file (type png)
 <use img/Multilateration_Error.png>
-Package pdftex.def Info: img/Multilateration_Error.png  used on input line 161.
+Package pdftex.def Info: img/Multilateration_Error.png  used on input line 226.
 (pdftex.def)             Requested size: 123.84283pt x 86.68074pt.
 File: img/Plot-K5FloorPlan-1.png Graphic file (type png)
 <use img/Plot-K5FloorPlan-1.png>
-Package pdftex.def Info: img/Plot-K5FloorPlan-1.png  used on input line 162.
+Package pdftex.def Info: img/Plot-K5FloorPlan-1.png  used on input line 227.
 (pdftex.def)             Requested size: 123.84283pt x 86.68716pt.
-[2 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-1.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-2.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-3.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-4.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-5.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/heatMap_allMac_8Angles/Mac-6.png (PNG copy)> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/K-Fold CV.png>]
-Underfull \hbox (badness 1571) in paragraph at lines 192--193
-[]\OT1/ptm/m/n/12 Make ex-plicit con-nec-tion to project back-
- []
-
-[3 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-k-fold_CV-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K1FloorPlan-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K3FloorPlan-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K5FloorPlan-1.png> <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Multilateration_Error.png>]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -614,22 +630,24 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[4
+[6 <c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/img/Plot-K5FloorPlan-1.png>] (c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.aux)
 
-] (c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.aux) ) 
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 12676 strings out of 476878
- 202939 string characters out of 5824137
- 561145 words of memory out of 5000000
- 33701 multiletter control sequences out of 15000+600000
- 509918 words of font info for 115 fonts, out of 8000000 for 9000
+ 12749 strings out of 476878
+ 204331 string characters out of 5824137
+ 560362 words of memory out of 5000000
+ 33758 multiletter control sequences out of 15000+600000
+ 510865 words of font info for 119 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 86i,11n,91p,1170b,569s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{c:/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc}<c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.pdf" (4 pages, 1109338 bytes).
+ 86i,11n,91p,1973b,457s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{c:/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc}<c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on "c:/Users/sangb/Desktop/School/Classes/STAT/STAT 410/Assignment/Indoor_positioning_system/lib/Paper/Paper.pdf" (6 pages, 1508139 bytes).
 PDF statistics:
- 178 PDF objects out of 1000 (max. 8388607)
- 126 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
- 117 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 210 PDF objects out of 1000 (max. 8388607)
+ 149 compressed objects within 2 object streams
+ 48 named destinations out of 1000 (max. 500000)
+ 148 words of extra memory for PDF output out of 10000 (max. 10000000)
 
