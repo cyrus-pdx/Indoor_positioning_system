@@ -45,7 +45,7 @@
 % Abstract and Keywords
 %------------------------------------------------------------------------------------------------------------------------------------
 \begin{abstract}
-  To be continued...
+If Global Positioning System (GPS) radios are insufficient or infeasible for physically locating a network-connected device, utilizing the network connection itself for an "Indoor Positioning System" is a viable alternative. This paper considers how to use received signal strength indication values to estimate an object's position by using either (1) predicted distances from a linear model as the basis for a trilateration algorithm or (2) by classifying a location based on a k-nearest neighbors (KNN) supervised learning algorithm. The paper finds that the KNN approach provides a higher accuracy than the trilateration method for a given dataset of a floor in a university building.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -57,22 +57,22 @@
 % Introduction
 %------------------------------------------------------------------------------------------------------------------------------------
 \section{Introduction}
-In recent years, with the ubiquity of mobile and Internet of Things devices, the possibility of creating an Indoor Positioning System (IPS), has become a reality for many structures. Our client, the engineering department of a university, has requested our team to create a model that predicts the physical location of a device, based on a set of signal strengths between access points and connected devices. The client also asked our team to quantify the accuracy and precision of the model. In order to find the most accurate way of predicting the location, two approaches were adopted in this experiment, The first, Trilateration Technique, is the use of distances for determining the coordinates of a point in space. Since this approach is being used for geopositioning, we thought that it might be applied to IPS as well. The second approach, K-Nearest Neighbor (KNN) method, is a supervised lazy learning algorithm. This approach seems promising because it has been proven successful in the past in solving similar problems.
+In recent years, with the ubiquity of mobile and Internet of Things devices, the possibility of creating an Indoor Positioning System (IPS), has become a reality for many structures \cite{b1}. Our client, the engineering department of a university, has requested our team to create a model that predicts the physical location of a device, based on a set of signal strengths between access points and connected devices. The client also asked our team to quantify the accuracy and precision of the model. In order to find the most accurate way of predicting the location, two approaches were adopted in this experiment, The first, Trilateration Technique, is the use of distances for determining the coordinates of a point in space. Since this approach is being used for geopositioning, we thought that it might be applied to IPS as well. The second approach, K-Nearest Neighbor (KNN) method, is a supervised lazy learning algorithm. This approach seems promising because it has been proven successful in the past in solving similar problems.
 
-Our group was contacted by a local university who collected data from their internet network. The client requested that we identify the physical location of devices that are connected to the university network. There are six access points (i.e., wifi routers), with distinct MAC addresses, on a certain floor of one of the university buildings. The floor-plan is roughly 35 meters by 18 meters and is composed of several class rooms and hallways. Devices that are connected to the network can measure the Received Signal Strength Indication (RSSI) of all access points within range. To collect the data, a mobile device connected to the network has recorded different values at various locations and oriented in various directions. The collected data was split into Offline and Online data, which will later be used to train and test the models developed by our team.
+The client requested that we identify the physical location of devices that are connected to the university network. There are six access points (i.e. wifi routers), with distinct MAC addresses, on a certain floor of one of the university buildings. The floor-plan is roughly 35 by 14 meters and is composed of several classrooms and hallways. Devices that are connected to the network can measure the Received Signal Strength Indication (RSSI) of all access points within range. To collect the data, a mobile device connected to the network has recorded different values at various locations and oriented in various directions. The collected data was split into Offline and Online data, which will later be used to train and test the models developed by our team.
+Two approaches were tried. The first method we will introduce is trilateration which is a method for determining the relative position of points by measuring absolute distances to determine the coordinates of a point in space \cite{b2}. Since this approach is being used for geopositioning, we thought that it might be applied to IPS as well. The second approach, KNN, is a non-parametric supervised learning method. This approach seems promising because it has been proven successful in the past at solving similar problems and is a popular approach regarding clustering \cite{b3}.
 
 
 %------------------------------------------------------------------------------------------------------------------------------------
 % Data
 %------------------------------------------------------------------------------------------------------------------------------------
 \section{Data}
-The dataset consist of locations collected on a singular floor of the engineering department building. Their problem is they want to be able to predict the physical location of devices that are connected to the network. The client's overall goal is to have a model capable of taking a set of signal strengths from relevant access points and predicting the physical location of that device. Additionally, they want to have the ability to quantify the accuracy and precision of the model.
+Our group was contacted by a local university who collected data from their internet network. The location for the collected data was on a singular floor of the engineering department building. Their problem is they want to be able to predict the physical location of devices that are connected to the network. The client's overall goal is to have a model capable of taking a set of signal strengths from relevant access points and predicting the physical location of that device. Additionally, they want to have the ability to quantify the accuracy and precision of the model. In the interview, our client explained the general layout of the building's floor and provided a base floor plan layout whose dimensions are roughly 35 by 14 meters . This image included the layout of where the floor's room are, the locations for the relevant wireless access points, all 166 recorded locations that depict the offline receiver locations, as well as the locations for the online receiver points. The placement of the access points was particularly interesting because two were on opposite ends of the left side of the floor, two were in classrooms with one being more centrally located, and the others were on the opposite side of the floor closely positioned with clear lines of sight down their respective corridors. This is interesting because each access point, their locations, and groupings all present the opportunity to factor into the processing of the data for developing a model. 
 
-In the interview, our client explained the general layout of the building's floor and provided a base floor plan layout whose dimensions are roughly 35 x 14 meters . This image included the layout of where the floor's room are, the locations for the relevant wireless access points, all 166 recorded locations that depict the offline receiver locations, as well as the locations for the online receiver points. The placement of the access points was particularly interesting because two were on opposite ends of the left side of the floor, two were in classrooms with one being more centrally located, and the others were on the opposite side of the floor closely positioned with clear lines of sight down their respective corridors. This is interesting because each access point, their locations, and groupings all present the opportunity to factor into the processing of the data for developing a model. 
+While the client explained that they had viewed the data, they explained that they had not altered the data that they had collected. From their observations we were able to gather that the data contained extra broadcasted data from ad-hoc devices and wireless access points from other floors. Meaning that our team would need to filter the data to only include records relevant to what the client is interested in. The six wireless access points and their locations were included in a text file along with an offline and online dataset to develop potential methods. The offline data was a text file that contained 166 positions with each location having110 records for every 45 degree orientation. Resulting in each offline location having 880 records for a total of 146,080 recorded records. The text file also contained additional information that was not relevant to the data and needed to be filtered out. The online data contained 60 locations that were asymmetrical compared to the offline data grid. 
 
-While the client explained that they had viewed the data, they explained that they had not altered the data that they had collected. From their observations we were able to gather that the data contained extra broadcasted data from ad-hoc devices and wireless access points from other floors. Meaning that our team would need to filter the data to only include records relevant to what the client is interested in. The six wireless access points and their locations were included in a text file along with an offline and online dataset to develop potential methods. The offline data was a text file that contained 166 positions with each location having 110 records for every 45 degree orientation. Resulting in each offline location having 880 records for a total of 146,080 recorded records. The text file also contained additional information that was not relevant to the data and needed to be filtered out. The online data contained 60 locations that were asymmetrical compared to the offline data grid. 
+With the client having already created the offline and online radio maps, the role for our team would be cleaning the data to develop methods for estimating the locations and their accuracy for devices connected to their network. We identified two potential methods for accomplishing our clients' goal after tidying the data by removing unwanted records and creating a better workable format. The first method we wanted to test was a technique known as trilateration or multilateration. The other method we tested is known as the k-nearest neighbors (KNN) algorithm, which is used in machine learning. The KNN algorithm also has several different subclasses that can be used to better fit or evaluate models as needed. These include a deterministic, probabilistic, and proximity based approaches that each have considerations to take into account \cite{b4, b5}. Both methods use a form of fingerprinting to estimate indoor positioning. Additionally, both methods use the offline phase radio map to test their respective methods against the online radio map. In Figure~\ref{fig: Heat Map of 6 APs}, we provide intuitive heat maps to show our RSSI strength at every access point in all orientations from our offline radio map. After reviewing the data and briefly researching the associated topics, our team concluded that R was the best programming language for accomplishing the objectives. A particularly interesting find was coming across a package that was created for Wi-Fi localization \cite{b4}. Because packages can go out of date if it stops being actively maintained, we decided to develop separate methods for addressing our clients needs. 
 
-With the client having already created the offline and online radio maps, the role for our team would be cleaning the data to develop methods for estimating the locations and their accuracy for devices connected to their network. We identified two potential methods for accomplishing our clients goal after tidying the data by removing unwanted records and creating a better workable format. Both Trilateration Technique and KNN algorithm uses a form of fingerprinting to estimate indoor positioning. Additionally, both methods uses the offline phase radio map to test their respective methods against the online radio map. In Figure~\ref{fig: Heat Map of 6 APs}, we provide intuitive heat maps to show our RSSI strength at every access point in all orientations from our offline radio map.
 
 \begin{figure}[htbp]
   \centering
@@ -98,20 +98,20 @@ Similarly to how governments use fingerprints to identify an individual, indoor 
 \subsection{Trilateration}
 Trilateration is a process where the location of an object is determined by measuring the distances to three or more known reference points. This process is utilized in GPS satellite radio navigation and locating earthquake epicenters. However, trilateration works best when the distances are accurately determined; measuring the time that the respective waves take to reach the measuring device is the data of choice for seismology, GPS, and professional WiFi trilateration methods. Our dataset, however, will use signal strength to estimate the distances. Once we have those estimated distances, we will attempt to locate the object by minimizing the sum of squares of the difference between the actual distances and the predicted distances.
 
-When plotting the median signal strength against the distance between the recording point and each access point, we identify that there is a relationship between the distance and signal strength. The RSSI heat maps suggest however that this may not be a simple relationship. For example, the access point with the MAC address "00:14:bf:b1:97:8a" has a strong signal strength across the entire left hallway, something that appears as a "shelf" on the corresponding scatter plot.
+When plotting the median signal strength against the distance between the recording point and each access point, we identify that there is a relationship between the distance and signal strength. The heat maps of RSSI values suggest however that this may not be a simple relationship. For example, the access point with the MAC address $\texttt{"00:14:bf:b1:97:8a"}$ has a strong signal strength across the entire left hallway, something that appears as a "shelf" on the corresponding scatter plot.
 
 \begin{figure}[htbp]
   \centerline{\includegraphics[width=\columnwidth]{img/distance_against_median_signal.png}}
-  \caption{Schematic diagram of K-fold Cross-Validation}
-  \label{fig: K-Fold CV}
+  \caption{Scatterplot of Median Signal Strength against Distance (grouped by access point MAC address)}
+  \label{fig: Distance Distribution}
 \end{figure}
 
-To model the distances, we will only use the signal strength and the MAC addresses. The orientation of the operator holding the recording device can be shown to impact isolated locations, but the average trend across the entire dataset was unclear and will, for this technique, be dropped. Since the scatterplots show some nonlinearity in the dataset, we will consider a transformation; using the box-cox method, it was found that the median signal has a more linear relationship with the square root of the distance. Since light follows the inverse square law, this makes sense, though it should be noted that the signal strength being measured in a logarithmic scale (decibel-milliwatts), we should be cautious about how to interpret the square root distance having a better linear relationship than the original distance measurement.
+To model the distances, we will only use the signal strength and the MAC addresses. The orientation of the operator holding the recording device can be shown to impact isolated locations, but the average trend across the entire dataset was unclear and will, for this technique, be dropped. Since the scatter plots shows some nonlinearity in the dataset, we will consider a transformation; using the box-cox method, it was found that the median signal has a more linear relationship with the square root of the distance. Since light follows the inverse square law, this makes sense, though it should be noted that the signal strength being measured in a logarithmic scale (decibel-milliwatts), we should be cautious about how to interpret the square root distance having a better linear relationship than the original distance measurement.
 
 We constructed a separate linear model for each MAC address. Although the end result is identical to a single model that includes the interaction between the signal strength and access point, separating them means we can provide a coefficient of determination ($R^2$) for each linear model to determine which MAC address is easiest to predict the distance for. One way to interpret this is that, for the MAC address \texttt{"00:14:bf:b1:97:8a"}, we can say that $\texttt{67.98\%}$ of the variation in the dataset can be described by our model.
 
-
 \begin{table}[]
+  \centering
   \begin{tabular}{|l|l|}
   \hline
   MAC Address       & $R^2$                \\ \hline
@@ -125,12 +125,11 @@ We constructed a separate linear model for each MAC address. Although the end re
   \end{tabular} \label{fig: lm_r2}
 \end{table}
 
-
-Once we have our models constructed based off of the offline training dataset, we can then predict the distances between each location in the online validation dataset and each access point. The following chart shows histograms showing the "residuals" or differences between each predicted distance and the actual distance. Note that we are within +/- 10 meters regardless of MAC address.
+Once we have our models constructed based off of the offline training dataset, we can then predict the distances between each location in the online validation dataset and each access point. The following chart shows histograms showing the "residuals" or differences between each predicted distance and the actual distance. Note that we are within $\pm 10$ meters regardless of MAC address.
 
 \begin{figure}[htbp]
   \centerline{\includegraphics[width=\columnwidth]{img/Distance_error_hist.png}}
-  \caption{Schematic diagram of K-fold Cross-Validation}
+  \caption{Histogram of residuals for predicted distance (grouped by access point MAC address)}
   \label{fig: K-Fold CV}
 \end{figure}
 
@@ -144,7 +143,7 @@ The process is visualized in the below figure for one example data point, the lo
 
 \begin{figure}[htbp]
   \centerline{\includegraphics[width=\columnwidth]{img/circles_real4.png}}
-  \caption{Schematic diagram of K-fold Cross-Validation}
+  \caption{Single example of Trilateration Technique given predicted distances}
   \label{fig: Distance Comparison}
 \end{figure}
 
@@ -152,17 +151,17 @@ The following chart shows the predicted and actual locations for the online vali
 
 \begin{figure}[htbp]
   \centerline{\includegraphics[width=\columnwidth]{img/Multilateration_Error.png}}
-  \caption{Schematic diagram of K-fold Cross-Validation}
+  \caption{Floor plan of estimated device locations for Trilateration Techinque}
   \label{fig: Trilateration Floor Plan}
 \end{figure}
 
 
 \subsection{K-Nearest Neighbor}
-The second method we adopted is using the K-nearest Neighbors (KNN) Classification algorithm in order to predict the locations of our devices from the online dataset. The procedure of this method is as follows: we first have our entire dataset consisting of offline and online data, we these transform the offline data as our training dataset and online data as our testing dataset. Since the testing dataset has records of RSSI values from various locations, we take these RSSI values compared with the close neighbors (in terms of RSSI) from our training dataset. By close, we mean finding similar RSSI values from the training dataset under the assumption that the predicted location has the same MAC address and orientation as the actual location of the testing dataset. We define $k$ as the number of neighbors in the training set, then the corresponding positions of our neighbors will be considered as the predicted positions in the test dataset. The neighbors are defined to be 
+The second method we adopted is using the K-nearest Neighbors (KNN) Classification algorithm in order to predict the locations of our devices from the online dataset. The procedure of this method is as follows: we first have our entire dataset consisting of offline and online data, we then transform the offline data as our training dataset and online data as our testing dataset. Since the testing dataset has records of RSSI values from various locations, we take these RSSI values compared with the close neighbors (in terms of RSSI) from our training dataset. By close, we mean finding similar RSSI values from the training dataset under the assumption that the predicted location has the same MAC address and orientation as the actual location of the testing dataset. We define $k$ as the number of neighbors in the training set, then the corresponding positions of our neighbors will be considered as the predicted positions in the test dataset. The neighbors are defined to be 
 $$
   \text{min}\left(\sqrt{(RSSI_{train}-RSSI_{test})^2}\right), k=1.
 $$ 
-If $k>1$, then we choose the least k numbers of RSSI values as our neighbors.
+If $k>1$, then we choose the least $k$ numbers of RSSI values as our neighbors.
 
 
 Now that we have the basic procedures as to how to find the predicted positions, this brings up a new question as to how many neighbors should we select? The choice of $k$ is very sensitive, choosing a small amount of $k$ leads to underfitting of our model to the training data, and choosing a large amount of $k$ leads to overfitting. Ideally, we want to choose the value of $k$ that is independent from our test data, the method of $k$-fold Cross-Validation (CV) can help us do this.
@@ -203,7 +202,7 @@ As the above figure shows, the SSE is lowest when $k=5$, suggesting us that 5 ne
   \label{fig: K5}
 \end{figure}
 
-The above 3 figures show the floor plan view of our dataset, the grids are the actual rooms, the gray points are the training dataset, the black points are the testing dataset, the black squares being the access points, and the black lines indicates the error between the actual and estimated positions.
+The below 3 figures are the floor plan views of our dataset, the grids are the actual classrooms, the gray points are the training dataset, the black points are the testing dataset, the black squares being the access points, and the black lines indicates the error between the actual and estimated positions.
 
 We can see that $k=3$ shows a much smaller error in distance than $k=1$. While the plot for $k=5$ is similar to the plot for $k=1$, the average and median error in distance is actually smaller in $k=5$.
 
@@ -238,6 +237,8 @@ We can see that $k=3$ shows a much smaller error in distance than $k=1$. While t
   \end{tabular}
 \end{table}
 
+Referring to the above table, we can see that the mean and median error distance using the KNN algorithm are much lower than those using Trilateration Technique.
+
 %------------------------------------------------------------------------------------------------------------------------------------
 % Conclusion
 %------------------------------------------------------------------------------------------------------------------------------------
@@ -249,31 +250,16 @@ Originally, we were tasked with providing consulting services regarding developi
 % Reference
 %------------------------------------------------------------------------------------------------------------------------------------
 \begin{thebibliography}{00}
-\bibitem{b1} 
-\bibitem{b2} 
-\bibitem{b3} 
-\bibitem{b4} 
-\bibitem{b5} 
-\bibitem{b6} 
-\bibitem{b7} 
-\bibitem{b8} 
-\bibitem{b9} 
-\bibitem{b10} 
+\bibitem{b1} Babalola OP, Balyan V. WiFi fingerprinting indoor localization based on dynamic mode decomposition feature selection with hidden Markov model. Sensors. 2021 Oct 13;21(20):6778.
+\newline
+\bibitem{b2} Conesa J, Pérez-Navarro A, Sospedra JT, Montoliu R. Geographical and fingerprinting data to create systems for indoor positioning and indoor/outdoor navigation. Elsevier: Amsterdam, The Netherlands; 2018.
+\newline
+\bibitem{b3} Cramariuc A, Huttunen H, Lohan ES. Clustering benefits in mobile-centric WiFi positioning in multi-floor buildings. In2016 International Conference on Localization and GNSS (ICL-GNSS) 2016 Jun 28 (pp. 1-6). IEEE.
+\newline
+\bibitem{b4} Sansano-Sansano E, Montoliu Colás R, Belmonte-Fernández Ó, Torres-Sospedra J. Indoor Positioning and Fingerprinting: The R Package ipft.
+\newline
+\bibitem{b5} Liu F, Liu J, Yin Y, Wang W, Hu D, Chen P, Niu Q. Survey on WiFi‐based indoor positioning techniques. IET communications. 2020 Jun;14(9):1372-83.
 \end{thebibliography}
 \vspace{12pt}
-
-
-
-%------------------------------------------------------------------------------------------------------------------------------------
-% Appendix
-%------------------------------------------------------------------------------------------------------------------------------------
-\section*{Appendix A: Data Tables}
-
-
-\section*{Appendix B: Derivation of Equations}
-
-
-\section*{Appendix C: Index}
-
 
 \end{document}
